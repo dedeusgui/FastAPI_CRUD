@@ -10,3 +10,8 @@ class UserCreate(BaseModel):
 class UserLogin(BaseModel):
     email: EmailStr
     password: str = Field(min_length=6)
+
+
+class UpdateUser(BaseModel):
+    name: str
+    email: EmailStr

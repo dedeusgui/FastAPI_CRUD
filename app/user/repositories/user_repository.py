@@ -1,5 +1,5 @@
 import sqlite3
-from models.user import User
+from app.user.models.user import User
 
 
 class UserRepository:
