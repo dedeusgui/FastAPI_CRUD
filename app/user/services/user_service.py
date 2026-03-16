@@ -14,6 +14,8 @@ class UserService:
         self.user_repository.create_user(user)
 
     def delete_user(self, user_id: int) -> None:
+        if not self.user_repository.get_user_by_id(user_id):
+            raise ValueError("User not found")
         self.user_repository.delete_user(user_id)
 
     def update_user(self, user_id: int, name: str, email: str) -> None:
@@ -29,7 +31,13 @@ class UserService:
         self.user_repository.update_user(user_id, updated_user)
 
     def get_user_by_id(self, user_id: int) -> User | None:
-        return self.user_repository.get_user_by_id(user_id)
+        user = self.user_repository.get_user_by_id(user_id)
+        if user is None:
+            raise ValueError("User not found")
+        return user
 
     def get_user_by_email(self, email: str) -> User | None:
-        return self.user_repository.get_user_by_email(email)
+        user = self.user_repository.get_user_by_email(email)
+        if user is None:
+            raise ValueError("User not found")
+        return user
