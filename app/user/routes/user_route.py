@@ -71,7 +71,7 @@ async def delete_user(
         raise HTTPException(status_code=404, detail=str(e))
 
 
-@router.put("/{user_id}")
+@router.patch("/{user_id}")
 async def update_user(
     user_id: int,
     user: UpdateUser,
