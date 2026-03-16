@@ -1,63 +1,36 @@
-import sqlite3
+from sqlalchemy.orm import Session
 from app.user.models.user import User
-from app.user.utils.security import hash_password, verify_password, create_jwt_token
 
 
 class UserRepository:
-    def __init__(self, db_path: str = "user.db"):
-        self.db_path = db_path
+    def __init__(
+        self,
+        db: Session,
+    ):
+        self.db = db
 
     def create_user(self, user: User) -> User:
-        conn = sqlite3.connect(self.db_path)
-        cursor = conn.cursor()
-        cursor.execute(
-            "INSERT INTO users (name, email, hashed_password) VALUES (?, ?, ?)",
-            (user.name, user.email, user.hashed_password),
-        )
-        conn.commit()
-        user.id = cursor.lastrowid
-        conn.close()
+        self.db.add(user)
+        self.db.commit()
+        self.db.refresh(user)
         return user
 
     def delete_user(self, id: int) -> None:
-        conn = sqlite3.connect(self.db_path)
-        cursor = conn.cursor()
-        cursor.execute("DELETE FROM users WHERE id = ?", (id,))
-        conn.commit()
-        conn.close()
+        user = self.get_user_by_id(id)
+        if user:
+            self.db.delete(user)
+            self.db.commit()
 
     def update_user(self, id: int, user: User) -> None:
-        conn = sqlite3.connect(self.db_path)
-        cursor = conn.cursor()
-        cursor.execute(
-            "UPDATE users SET name = ?, email = ? WHERE id = ?",
-            (user.name, user.email, id),
-        )
-        conn.commit()
-        conn.close()
+        db_user = self.get_user_by_id(id)
+        if db_user:
+            for key, value in user.__dict__.items():
+                if key != "_sa_instance_state":
+                    setattr(db_user, key, value)
+            self.db.commit()
 
     def get_user_by_id(self, id: int) -> User | None:
-
-        conn = sqlite3.connect(self.db_path)
-        cursor = conn.cursor()
-        cursor.execute(
-            "SELECT id, name, email, hashed_password FROM users WHERE id = ?", (id,)
-        )
-        row = cursor.fetchone()
-        conn.close()
-        if row:
-            return User(id=row[0], name=row[1], email=row[2], hashed_password=row[3])
-        return None
+        return self.db.query(User).filter(User.id == id).first()
 
     def get_user_by_email(self, email: str) -> User | None:
-        conn = sqlite3.connect(self.db_path)
-        cursor = conn.cursor()
-        cursor.execute(
-            "SELECT id, name, email, hashed_password FROM users WHERE email = ?",
-            (email,),
-        )
-        row = cursor.fetchone()
-        conn.close()
-        if row:
-            return User(id=row[0], name=row[1], email=row[2], hashed_password=row[3])
-        return None
+        return self.db.query(User).filter(User.email == email).first()

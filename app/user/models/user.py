@@ -1,9 +1,14 @@
-class User:
-    def __init__(self, id: int | None, name: str, email: str, hashed_password: str):
-        self.id = id
-        self.name = name
-        self.email = email
-        self.hashed_password = hashed_password
+from sqlalchemy import Column, Integer, String
+from config.database import Base
+
+
+class User(Base):
+    __tablename__ = "users"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, index=True)
+    email = Column(String, unique=True, index=True)
+    hashed_password = Column(String)
 
     def __repr__(self):
         return f"<User(name='{self.name}', email='{self.email}')>"

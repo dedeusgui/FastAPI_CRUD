@@ -1,19 +1,18 @@
 from app.user.schemas.user import UserCreate, UserLogin, UpdateUser
 from app.user.services.auth_service import AuthService
 from app.user.services.user_service import UserService
-from app.user.repositories.user_repository import UserRepository
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
+from config.dependencies import get_user_service
+from config.dependencies import get_auth_service
 
-
-user_repository = UserRepository()
-auth_service = AuthService(user_repository)
-user_service = UserService(user_repository)
 
 router = APIRouter(prefix="/users", tags=["Users"])
 
 
 @router.post("/register")
-async def register_user(user: UserCreate):
+async def register_user(
+    user: UserCreate, user_service: UserService = Depends(get_user_service)
+):
     try:
         user_service.register_user(user.name, user.email, user.password)
         return {"message": "User registered successfully"}
@@ -22,7 +21,9 @@ async def register_user(user: UserCreate):
 
 
 @router.post("/login")
-async def login_user(user: UserLogin):
+async def login_user(
+    user: UserLogin, auth_service: AuthService = Depends(get_auth_service)
+):
     token = auth_service.authenticate_user(user.email, user.password)
     if token:
         return {"message": "Login successful", "token": token}
@@ -31,7 +32,7 @@ async def login_user(user: UserLogin):
 
 
 @router.get("/{user_id}")
-async def get_user(user_id: int):
+async def get_user(user_id: int, user_service: UserService = Depends(get_user_service)):
     user = user_service.get_user_by_id(user_id)
     if user:
         return {"id": user.id, "name": user.name, "email": user.email}
@@ -40,7 +41,9 @@ async def get_user(user_id: int):
 
 
 @router.delete("/{user_id}")
-async def delete_user(user_id: int):
+async def delete_user(
+    user_id: int, user_service: UserService = Depends(get_user_service)
+):
     try:
         user_service.delete_user(user_id)
         return {"message": "User deleted successfully"}
@@ -49,7 +52,11 @@ async def delete_user(user_id: int):
 
 
 @router.put("/{user_id}")
-async def update_user(user_id: int, user: UpdateUser):
+async def update_user(
+    user_id: int,
+    user: UpdateUser,
+    user_service: UserService = Depends(get_user_service),
+):
     try:
         user_service.update_user(user_id, user.name, user.email)
         return {"message": "User updated successfully"}

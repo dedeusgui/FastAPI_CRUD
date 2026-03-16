@@ -10,4 +10,5 @@ dependencies = [
     "pydantic>=2.10.2",
     "bcrypt>=5.0.0",
     "pyjwt>=2.12.1",
+    "sqlalchemy>=2.0.48",
 ]
