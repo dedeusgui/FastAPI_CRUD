@@ -9,4 +9,5 @@ dependencies = [
     "uvicorn>=0.41.0",
     "pydantic>=2.10.2",
     "bcrypt>=5.0.0",
+    "pyjwt>=2.12.1",
 ]

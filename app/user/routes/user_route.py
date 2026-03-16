@@ -23,8 +23,9 @@ async def register_user(user: UserCreate):
 
 @router.post("/login")
 async def login_user(user: UserLogin):
-    if auth_service.authenticate_user(user.email, user.password):
-        return {"message": "Login successful"}
+    token = auth_service.authenticate_user(user.email, user.password)
+    if token:
+        return {"message": "Login successful", "token": token}
     else:
         raise HTTPException(status_code=401, detail="Invalid email or password")
 

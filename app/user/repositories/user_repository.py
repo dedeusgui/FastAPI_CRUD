@@ -1,5 +1,6 @@
 import sqlite3
 from app.user.models.user import User
+from app.user.utils.security import hash_password, verify_password, create_jwt_token
 
 
 class UserRepository:
@@ -36,6 +37,7 @@ class UserRepository:
         conn.close()
 
     def get_user_by_id(self, id: int) -> User | None:
+
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
         cursor.execute(
