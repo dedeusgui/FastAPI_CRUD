@@ -18,7 +18,7 @@ class UserService:
             raise ValueError("User not found")
         self.user_repository.delete_user(user_id)
 
-    def update_user(self, user_id: int, name: str, email: str) -> None:
+    def update_user(self, user_id: int, name: str | None, email: str | None) -> None:
         existing_user = self.user_repository.get_user_by_id(user_id)
         if not existing_user:
             raise ValueError("User not found")

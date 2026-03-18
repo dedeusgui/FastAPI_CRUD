@@ -1,5 +1,8 @@
+from turtle import title
+
 from sqlalchemy.orm import Session
 from app.tasks.models.tasks import Task
+from todo.app.tasks.schemas.tasks import TaskUpdate
 
 
 class TaskRepository:
@@ -17,26 +20,26 @@ class TaskRepository:
         if task:
             self.db.delete(task)
 
-    def update_task(self, id: int, title: str, description: str):
-        task = self.get_task_by_id(id)
-        if task:
-            task = self.get_task_by_id(id)
+    def update_task(
+        self, task: Task, title: str | None, description: str | None, user_id: int
+    ) -> None:
 
         if not task:
             return None
 
-        task.title = title
-        task.description = description
+        if title is not None:
+            task.title = title
+
+        if description is not None:
+            task.description = description
 
         self.db.commit()
         self.db.refresh(task)
 
-    def complete_task(self, id: int):
-        task = self.get_task_by_id(id)
-        if task:
-            task.completed = True
-            self.db.commit()
-            self.db.refresh(task)
+    def complete_task(self, task: Task):
+        task.completed = True
+        self.db.commit()
+        self.db.refresh(task)
 
     def get_task_by_id(self, id: int):
         return self.db.query(Task).filter(Task.id == id).first()

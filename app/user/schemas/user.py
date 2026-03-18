@@ -12,6 +12,14 @@ class UserLogin(BaseModel):
     password: str = Field(min_length=6)
 
 
-class UpdateUser(BaseModel):
+class UserUpdate(BaseModel):
+    name: str | None = None
+    email: EmailStr | None = None
+
+
+class UserResponse(BaseModel):
+    id: int
     name: str
     email: EmailStr
+
+    model_config = {"from_attributes": True}
