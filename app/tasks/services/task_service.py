@@ -28,4 +28,8 @@ class TaskService:
             raise HTTPException(status_code=404, detail="Task not found")
         if task.user_id != user_id:
             raise HTTPException(status_code=403, detail="Unauthorized")
-        self.task_repository.update_task(task, title, description, user_id)
+        self.task_repository.update_task(
+            task,
+            title,
+            description,
+        )

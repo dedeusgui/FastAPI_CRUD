@@ -21,7 +21,7 @@ class TaskRepository:
             self.db.delete(task)
 
     def update_task(
-        self, task: Task, title: str | None, description: str | None, user_id: int
+        self, task: Task, title: str | None, description: str | None
     ) -> None:
 
         if not task:
