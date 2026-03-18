@@ -1,8 +1,5 @@
-from turtle import title
-
 from sqlalchemy.orm import Session
 from app.tasks.models.tasks import Task
-from todo.app.tasks.schemas.tasks import TaskUpdate
 
 
 class TaskRepository:
@@ -32,7 +29,6 @@ class TaskRepository:
 
         if description is not None:
             task.description = description
-
         self.db.commit()
         self.db.refresh(task)
 
