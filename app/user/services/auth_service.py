@@ -13,7 +13,7 @@ class AuthService:
             return token
         return None
 
-    def get_current_user(self, user_repository: UserRepository, token: str):
+    def get_current_user(self, token: str):
         user_id = decode_jwt_token(token, "your_secret_key")
         if user_id:
-            return user_repository.get_user_by_id(user_id)
+            return self.user_repository.get_user_by_id(user_id)

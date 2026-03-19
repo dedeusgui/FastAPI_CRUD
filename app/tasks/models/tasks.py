@@ -1,8 +1,10 @@
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from app.user.models.user import User
-
+from typing import TYPE_CHECKING
 from config.database import Base
+
+if TYPE_CHECKING:
+    from app.user.models.user import User
 
 
 class Task(Base):

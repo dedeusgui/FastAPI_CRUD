@@ -1,7 +1,10 @@
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from config.database import Base
-from app.tasks.models.tasks import Task
 from typing import List
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from app.tasks.models.tasks import Task
 
 
 class User(Base):
