@@ -6,8 +6,8 @@ from config.database import get_db
 from app.user.repositories.user_repository import UserRepository
 from app.user.services.user_service import UserService
 from app.user.services.auth_service import AuthService
-from todo.app.tasks.repositories.task_repository import TaskRepository
-from todo.app.tasks.services.task_service import TaskService
+from app.tasks.repositories.task_repository import TaskRepository
+from app.tasks.services.task_service import TaskService
 
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/users/login")

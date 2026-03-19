@@ -1,16 +1,13 @@
-from app.user.repositories.user_repository import UserRepository
 from app.user.schemas.user import UserCreate, UserLogin, UserUpdate
 from app.user.services.auth_service import AuthService
 from app.user.services.user_service import UserService
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer
-from config.dependencies import get_current_user, get_user_service
-from config.dependencies import get_auth_service
-from todo.app.user.services import user_service
+from config.dependencies import get_auth_service, get_current_user, get_user_service
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/users/login")
 
-router = APIRouter(prefix="/users", tags=["Users"])
+router = APIRouter(prefix="/users", tags=["users"])
 
 
 @router.post("/register")

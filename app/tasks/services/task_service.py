@@ -1,6 +1,6 @@
 from fastapi import HTTPException
 
-from todo.app.tasks.repositories.task_repository import TaskRepository
+from app.tasks.repositories.task_repository import TaskRepository
 from app.tasks.models.tasks import Task
 
 
@@ -41,3 +41,8 @@ class TaskService:
         if task.user_id != user_id:
             raise HTTPException(status_code=403, detail="Unauthorized")
         self.task_repository.delete_task(id)
+
+    def get_tasks_by_user_id(self, user_id: int) -> list[Task]:
+        if not user_id:
+            raise HTTPException(status_code=400, detail="User ID is required")
+        return self.task_repository.get_tasks_by_user_id(user_id)

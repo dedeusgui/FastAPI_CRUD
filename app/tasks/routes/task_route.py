@@ -1,11 +1,8 @@
 from app.tasks.services.task_service import TaskService
 from app.tasks.schemas.tasks import TaskCreate, TaskUpdate
-from config.dependencies import get_current_user, get_task_service, get_user_service
-from fastapi import APIRouter, Depends, HTTPException
+from config.dependencies import get_current_user, get_task_service, get_task_repository
+from fastapi import APIRouter, Depends
 from fastapi.security import OAuth2PasswordBearer
-
-from todo.app.user.services import user_service
-from todo.config.dependencies import get_task_repository
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
@@ -15,9 +12,9 @@ router = APIRouter(prefix="/tasks", tags=["tasks"])
 @router.get("/")
 def get_tasks(
     user=Depends(get_current_user),
-    task_repository=Depends(get_task_repository),
+    task_service=Depends(get_task_repository),
 ):
-    return task_repository.get_tasks_by_user_id(user.id)
+    return task_service.get_tasks_by_user_id(user.id)
 
 
 @router.post("/create")
