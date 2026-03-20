@@ -1,4 +1,4 @@
-from app.user.schemas.user import UserCreate, UserLogin
+from app.user.schemas.user import TokenResponse, UserCreate, UserLogin
 from app.auth.services.auth_service import AuthService
 from app.user.services.user_service import UserService
 from fastapi import APIRouter, Depends, HTTPException
@@ -19,13 +19,17 @@ def register_user(
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@router.post("/login")
-def login_user(user: UserLogin, auth_service: AuthService = Depends(get_auth_service)):
+@router.post("/login", response_model=TokenResponse)
+def login_user(
+    user: UserLogin,
+    auth_service: AuthService = Depends(get_auth_service),
+):
     token = auth_service.authenticate_user(user.email, user.password)
-    if token:
-        return {"message": "Login successful", "token": token}
-    else:
+
+    if not token:
         raise HTTPException(status_code=401, detail="Invalid email or password")
+
+    return TokenResponse(access_token=token)
 
 
 @router.get("/me")

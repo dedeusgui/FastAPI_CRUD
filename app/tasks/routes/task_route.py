@@ -5,6 +5,7 @@ from app.auth.dependencies.auth_dependencies import get_current_user
 
 from fastapi import APIRouter, Depends
 
+
 router = APIRouter(prefix="/tasks", tags=["tasks"])
 
 
@@ -28,10 +29,10 @@ def create_task(
 @router.post("/complete/{id}")
 def complete_task(
     id: int,
-    user_id: int,
     task_service: TaskService = Depends(get_task_service),
+    user=Depends(get_current_user),
 ):
-    task_service.complete_task(id, user_id)
+    task_service.complete_task(id, user.id)
 
 
 @router.patch("/update/{id}")

@@ -68,13 +68,13 @@ Este projeto é um ponto de partida razoável, mas existem alguns problemas de s
       `app/user/routes/user_route.py:13`, `app/tasks/routes/task_route.py:12`
       Essas rotas são declaradas como async, mas todo o acesso ao banco usa SQLAlchemy síncrono. Use rotas `def` comuns ou migre para uma stack de banco assíncrona.
 
-- [ ] Revisar o requisito de versão do Python.
+- [x] Revisar o requisito de versão do Python.
       `pyproject.toml:6`
       O projeto exige `>=3.14`, mas o ambiente local aqui é Python 3.12.3. Se 3.14 não foi intencional, isso está mais restritivo do que o necessário.
 
-- [ ] Adicionar documentação básica de configuração do projeto.
-      `README.md:1`
-      O README está vazio. Adicione instruções de execução, variáveis de ambiente necessárias, configuração do banco e um exemplo do fluxo de autenticação.
+- [faremos em breve ] Adicionar documentação básica de configuração do projeto.
+  `README.md:1`
+  O README está vazio. Adicione instruções de execução, variáveis de ambiente necessárias, configuração do banco e um exemplo do fluxo de autenticação.
 
 - [ ] Adicionar testes antes de o projeto crescer.
       Projeto inteiro

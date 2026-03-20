@@ -18,3 +18,7 @@ class TaskRead(BaseModel):
     completed: bool
 
     model_config = {"from_attributes": True}
+
+
+class TaskDelete(BaseModel):
+    id: int
