@@ -2,9 +2,6 @@ from app.tasks.services.task_service import TaskService
 from app.tasks.schemas.tasks import TaskCreate, TaskUpdate
 from config.dependencies import get_current_user, get_task_service, get_task_repository
 from fastapi import APIRouter, Depends
-from fastapi.security import OAuth2PasswordBearer
-
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 router = APIRouter(prefix="/tasks", tags=["tasks"])
 
@@ -12,7 +9,7 @@ router = APIRouter(prefix="/tasks", tags=["tasks"])
 @router.get("/")
 def get_tasks(
     user=Depends(get_current_user),
-    task_service=Depends(get_task_repository),
+    task_service=Depends(get_task_service),
 ):
     return task_service.get_tasks_by_user_id(user.id)
 
@@ -20,9 +17,10 @@ def get_tasks(
 @router.post("/create")
 def create_task(
     task: TaskCreate,
+    user=Depends(get_current_user),
     task_service: TaskService = Depends(get_task_service),
 ):
-    task_service.create_task(task.title, task.description, task.user_id)
+    task_service.create_task(task.title, task.description, user.id)
 
 
 @router.post("/complete/{id}")

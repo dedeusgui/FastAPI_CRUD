@@ -24,9 +24,9 @@ class UserRepository:
     def update_user(self, id: int, user: User) -> None:
         db_user = self.get_user_by_id(id)
         if db_user:
-            for key, value in user.__dict__.items():
-                if key != "_sa_instance_state":
-                    setattr(db_user, key, value)
+            db_user.name = user.name
+            db_user.email = user.email
+
             self.db.commit()
 
     def get_user_by_id(self, id: int) -> User | None:

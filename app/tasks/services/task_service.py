@@ -1,15 +1,21 @@
 from fastapi import HTTPException
 
 from app.tasks.repositories.task_repository import TaskRepository
+from app.user.services import UserService
 from app.tasks.models.tasks import Task
 
 
 class TaskService:
-    def __init__(self, task_repository: TaskRepository):
+    def __init__(self, task_repository: TaskRepository, user_service: UserService):
         self.task_repository = task_repository
+        self.user_service = user_service
 
     def create_task(self, title: str, description: str | None, user_id: int) -> None:
+        user = self.user_service.get_user_by_id(user_id)
+        if user is None:
+            raise HTTPException(status_code=404, detail="User not found")
         task = Task(title=title, description=description, user_id=user_id)
+
         self.task_repository.create_task(task)
 
     def complete_task(self, id: int, user_id: int) -> None:
@@ -28,6 +34,7 @@ class TaskService:
             raise HTTPException(status_code=404, detail="Task not found")
         if task.user_id != user_id:
             raise HTTPException(status_code=403, detail="Unauthorized")
+
         self.task_repository.update_task(
             task,
             title,

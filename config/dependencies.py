@@ -1,4 +1,4 @@
-from fastapi import Depends
+from fastapi import Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 
@@ -35,12 +35,15 @@ def get_task_repository(db: Session = Depends(get_db)) -> TaskRepository:
 
 def get_task_service(
     task_repository: TaskRepository = Depends(get_task_repository),
+    user_service: UserService = Depends(get_user_service),
 ) -> TaskService:
-    return TaskService(task_repository)
+    return TaskService(task_repository, user_service)
 
 
 def get_current_user(
     auth_service: AuthService = Depends(get_auth_service),
     token: str = Depends(oauth2_scheme),
 ):
+    if not token:
+        raise HTTPException(status_code=401, detail="Not authenticated")
     return auth_service.get_current_user(token)

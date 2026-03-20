@@ -2,10 +2,7 @@ from app.user.schemas.user import UserCreate, UserLogin, UserUpdate
 from app.user.services.auth_service import AuthService
 from app.user.services.user_service import UserService
 from fastapi import APIRouter, Depends, HTTPException
-from fastapi.security import OAuth2PasswordBearer
 from config.dependencies import get_auth_service, get_current_user, get_user_service
-
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/users/login")
 
 router = APIRouter(prefix="/users", tags=["users"])
 
@@ -17,7 +14,7 @@ async def register_user(
     try:
         user_service.register_user(user.name, user.email, user.password)
         return {"message": "User registered successfully"}
-    except Exception as e:
+    except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
 
@@ -39,36 +36,3 @@ async def get_me(current_user=Depends(get_current_user)):
         "name": current_user.name,
         "email": current_user.email,
     }
-
-
-@router.get("/{user_id}")
-async def get_user(user_id: int, user_service: UserService = Depends(get_user_service)):
-    user = user_service.get_user_by_id(user_id)
-    if user:
-        return {"id": user.id, "name": user.name, "email": user.email}
-    else:
-        raise HTTPException(status_code=404, detail="User not found")
-
-
-@router.delete("/{user_id}")
-async def delete_user(
-    user_id: int, user_service: UserService = Depends(get_user_service)
-):
-    try:
-        user_service.delete_user(user_id)
-        return {"message": "User deleted successfully"}
-    except ValueError as e:
-        raise HTTPException(status_code=404, detail=str(e))
-
-
-@router.patch("/{user_id}")
-async def update_user(
-    user_id: int,
-    user: UserUpdate,
-    user_service: UserService = Depends(get_user_service),
-):
-    try:
-        user_service.update_user(user_id, user.name, user.email)
-        return {"message": "User updated successfully"}
-    except ValueError as e:
-        raise HTTPException(status_code=404, detail=str(e))
