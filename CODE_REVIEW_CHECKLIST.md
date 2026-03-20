@@ -64,7 +64,7 @@ Este projeto é um ponto de partida razoável, mas existem alguns problemas de s
 
 ## Limpeza / Manutenibilidade
 
-- [ ] Evitar misturar rotas `async def` com código de banco totalmente síncrono.
+- [x] Evitar misturar rotas `async def` com código de banco totalmente síncrono.
       `app/user/routes/user_route.py:13`, `app/tasks/routes/task_route.py:12`
       Essas rotas são declaradas como async, mas todo o acesso ao banco usa SQLAlchemy síncrono. Use rotas `def` comuns ou migre para uma stack de banco assíncrona.
 

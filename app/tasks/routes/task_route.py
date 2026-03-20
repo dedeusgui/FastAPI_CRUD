@@ -1,6 +1,8 @@
 from app.tasks.services.task_service import TaskService
 from app.tasks.schemas.tasks import TaskCreate, TaskUpdate
-from config.dependencies import get_current_user, get_task_service, get_task_repository
+from app.tasks.dependencies.task_dependencies import get_task_service
+from app.auth.dependencies.auth_dependencies import get_current_user
+
 from fastapi import APIRouter, Depends
 
 router = APIRouter(prefix="/tasks", tags=["tasks"])

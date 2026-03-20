@@ -1,4 +1,5 @@
 from fastapi import HTTPException
+from fastapi.security import OAuth2PasswordBearer
 
 from app.user.repositories.user_repository import UserRepository
 from app.user.utils.security import verify_password, create_jwt_token, decode_jwt_token
