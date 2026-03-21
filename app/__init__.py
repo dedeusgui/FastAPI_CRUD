@@ -4,6 +4,11 @@ Keep imports lazy so subpackages (for example ``app.auth``) can be imported
 without forcing full app startup.
 """
 
+from typing import TYPE_CHECKING
+
+
+if TYPE_CHECKING:
+    from app.main import app, create_app
 __all__ = ["app", "create_app"]
 
 
