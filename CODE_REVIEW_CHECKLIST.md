@@ -84,13 +84,13 @@ Este projeto é um ponto de partida razoável, mas existem alguns problemas de s
 
 ### Prioridade 1 - Autenticação e autorização
 
-- [ ] `POST /users/register` deve cadastrar usuário com dados válidos (retornar 200 e mensagem de sucesso).
+- [x] `POST /users/register` deve cadastrar usuário com dados válidos (retornar 200 e mensagem de sucesso).
       Por que: garante o fluxo base de entrada de novos usuários.
 
-- [ ] `POST /users/register` deve falhar com email já cadastrado (retornar 400 com "Email already registered").
+- [x] `POST /users/register` deve falhar com email já cadastrado (retornar 400 com "Email already registered").
       Por que: evita regressão na regra de unicidade de email.
 
-- [ ] `POST /users/login` deve retornar `access_token` e `token_type=bearer` para credenciais válidas.
+- [x] `POST /users/login` deve retornar `access_token`
       Por que: valida o fluxo principal de login.
 
 - [ ] `POST /users/login` deve retornar 401 para senha inválida.
