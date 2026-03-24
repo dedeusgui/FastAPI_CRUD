@@ -1,5 +1,7 @@
 import bcrypt
-import jwt
+import hashlib
+import hmac
+import secrets
 from datetime import datetime, timedelta
 
 
@@ -9,25 +11,22 @@ def hash_password(password: str) -> str:
     return hashed.decode("utf-8")
 
 
+def hash_token(token: str) -> str:
+    return hashlib.sha256(token.encode("utf-8")).hexdigest()
+
+
+def verify_token(token: str, hashed_token: str) -> bool:
+    token_hash = hash_token(token)
+    return hmac.compare_digest(token_hash, hashed_token)
+
+
 def verify_password(password: str, hashed_password: str) -> bool:
     return bcrypt.checkpw(password.encode("utf-8"), hashed_password.encode("utf-8"))
 
 
-def create_jwt_token(user_id: int | None, secret_key: str) -> str:
-    payload = {
-        "sub": user_id,
-        "iat": datetime.now(),
-        "exp": datetime.now() + timedelta(hours=1),
-    }
-    token = jwt.encode(payload, secret_key, algorithm="HS256")
-    return token
+def create_session_token() -> str:
+    return secrets.token_urlsafe(48)
 
 
-def decode_jwt_token(token: str, secret_key: str) -> int | None:
-    try:
-        payload = jwt.decode(token, secret_key, algorithms=["HS256"])
-        return payload.get("sub")
-    except jwt.ExpiredSignatureError:
-        return None
-    except jwt.InvalidTokenError:
-        return None
+def create_session_expires_at(hours: int = 1) -> datetime:
+    return datetime.now() + timedelta(hours=hours)

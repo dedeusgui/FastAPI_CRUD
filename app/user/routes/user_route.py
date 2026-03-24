@@ -1,9 +1,17 @@
-from app.user.schemas.user import TokenResponse, UserCreate, UserLogin
+from datetime import datetime
+
+from app.user.schemas.user import UserCreate, UserLogin
 from app.auth.services.auth_service import AuthService
+from app.auth.services.session_service import SessionService
+from app.auth.utils.security import create_session_expires_at, create_session_token
 from app.user.services.user_service import UserService
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Response
 from app.user.dependencies.user_dependencies import get_user_service
-from app.auth.dependencies.auth_dependencies import get_auth_service, get_current_user
+from app.auth.dependencies.auth_dependencies import (
+    get_auth_service,
+    get_current_user,
+    get_session_service,
+)
 
 router = APIRouter(prefix="/users", tags=["users"])
 
@@ -19,17 +27,29 @@ def register_user(
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@router.post("/login", response_model=TokenResponse)
+@router.post("/login")
 def login_user(
     user: UserLogin,
+    response: Response,
     auth_service: AuthService = Depends(get_auth_service),
+    session_service: SessionService = Depends(get_session_service),
 ):
-    token = auth_service.authenticate_user(user.email, user.password)
+    auth_user = auth_service.authenticate_user(user.email, user.password)
+    token = create_session_token()
+    expires_at = create_session_expires_at(hours=1)
+    session_service.create_session(auth_user.id, token, expires_at)
 
-    if not token:
-        raise HTTPException(status_code=401, detail="Invalid email or password")
+    max_age = max(0, int((expires_at - datetime.now()).total_seconds()))
+    response.set_cookie(
+        key="access_token",
+        value=token,
+        max_age=max_age,
+        httponly=True,
+        secure=False,
+        samesite="lax",
+    )
 
-    return TokenResponse(access_token=token)
+    return {"message": "Login successful"}
 
 
 @router.get("/me")
