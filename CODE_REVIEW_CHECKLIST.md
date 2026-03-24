@@ -76,6 +76,108 @@ Este projeto é um ponto de partida razoável, mas existem alguns problemas de s
   `README.md:1`
   O README está vazio. Adicione instruções de execução, variáveis de ambiente necessárias, configuração do banco e um exemplo do fluxo de autenticação.
 
-- [ ] Adicionar testes antes de o projeto crescer.
+- [ ] Criar suíte de testes mínima para garantir regressão zero nas regras de autenticação e propriedade.
       Projeto inteiro
-      Ainda não existem testes para cadastro, login, autorização e regras de propriedade das tarefas. Essas devem ser as primeiras áreas cobertas.
+      Os arquivos de teste existem, mas estão vazios. Abaixo está o TODO recomendado para implementar por prioridade.
+
+## TODO de Testes (o que implementar e por que)
+
+### Prioridade 1 - Autenticação e autorização
+
+- [ ] `POST /users/register` deve cadastrar usuário com dados válidos (retornar 200 e mensagem de sucesso).
+      Por que: garante o fluxo base de entrada de novos usuários.
+
+- [ ] `POST /users/register` deve falhar com email já cadastrado (retornar 400 com "Email already registered").
+      Por que: evita regressão na regra de unicidade de email.
+
+- [ ] `POST /users/login` deve retornar `access_token` e `token_type=bearer` para credenciais válidas.
+      Por que: valida o fluxo principal de login.
+
+- [ ] `POST /users/login` deve retornar 401 para senha inválida.
+      Por que: garante bloqueio de credenciais incorretas.
+
+- [ ] `POST /users/login` deve retornar 401 para email inexistente.
+      Por que: confirma comportamento seguro para usuários não cadastrados.
+
+- [ ] `GET /users/me` deve retornar dados do usuário quando token é válido.
+      Por que: valida extração de identidade a partir do JWT.
+
+- [ ] `GET /users/me` deve retornar 401 sem token.
+      Por que: garante que endpoint protegido não fique público.
+
+- [ ] `GET /users/me` deve retornar 401 com token inválido/expirado.
+      Por que: evita regressões de segurança no middleware de autenticação.
+
+### Prioridade 2 - Regras de tarefas por dono
+
+- [ ] `POST /tasks/create` deve criar tarefa vinculada ao usuário autenticado.
+      Por que: evita confiar em `user_id` vindo do cliente e garante ownership correto.
+
+- [ ] `GET /tasks/` deve listar somente tarefas do usuário autenticado.
+      Por que: impede vazamento de dados entre usuários.
+
+- [ ] `POST /tasks/complete/{id}` deve permitir completar tarefa do próprio usuário.
+      Por que: cobre o fluxo de sucesso da regra de domínio.
+
+- [ ] `POST /tasks/complete/{id}` deve retornar 403 ao tentar completar tarefa de outro usuário.
+      Por que: valida isolamento entre contas.
+
+- [ ] `POST /tasks/complete/{id}` deve retornar 404 para tarefa inexistente.
+      Por que: assegura tratamento correto de recurso não encontrado.
+
+- [ ] `PATCH /tasks/update/{id}` deve atualizar `title` e `description` de tarefa própria.
+      Por que: cobre atualização parcial e persistência de campos.
+
+- [ ] `PATCH /tasks/update/{id}` deve permitir atualizar só um campo (ex.: só `title`).
+      Por que: evita regressão em comportamento de PATCH parcial.
+
+- [ ] `PATCH /tasks/update/{id}` deve retornar 403 para tarefa de outro usuário.
+      Por que: reforça autorização por dono.
+
+- [ ] `DELETE /tasks/delete/{id}` deve excluir tarefa própria.
+      Por que: cobre operação destrutiva com sucesso.
+
+- [ ] `DELETE /tasks/delete/{id}` deve retornar 403 para tarefa de outro usuário.
+      Por que: evita deleção indevida entre usuários.
+
+- [ ] Endpoints de tarefas devem retornar 401 sem token e com token inválido.
+      Por que: garante proteção de todas as rotas protegidas.
+
+### Prioridade 3 - Validações de entrada e contratos de API
+
+- [ ] `POST /users/register` deve retornar 422 para senha com menos de 6 caracteres.
+      Por que: garante aplicação das regras declaradas no schema.
+
+- [ ] `POST /users/login` deve retornar 422 para payload inválido (email malformado, campos ausentes).
+      Por que: evita aceitação de dados inconsistentes no login.
+
+- [ ] `POST /tasks/create` deve retornar 422 sem `title`.
+      Por que: valida contrato mínimo do schema `TaskCreate`.
+
+- [ ] `PATCH /tasks/update/{id}` deve aceitar payload vazio sem erro 500.
+      Por que: protege contra regressão em cenários de atualização parcial sem campos.
+
+### Prioridade 4 - Testes unitários de serviço (mais rápidos)
+
+- [ ] `UserService.register_user` deve gerar hash e chamar `create_user`.
+      Por que: valida regra de negócio sem dependência HTTP.
+
+- [ ] `UserService.register_user` deve lançar `ValueError` para email duplicado.
+      Por que: confirma regra crítica de negócio antes da camada web.
+
+- [ ] `TaskService.complete_task/update_task/delete_task` deve lançar 403 quando `task.user_id != user_id`.
+      Por que: garante regra central de autorização na camada de domínio.
+
+- [ ] `TaskService.complete_task/update_task/delete_task` deve lançar 404 para tarefa inexistente.
+      Por que: garante consistência do tratamento de erro.
+
+### Prioridade 5 - Testes de infraestrutura de teste
+
+- [ ] Criar fixture de banco isolado para testes (transação rollback por teste ou SQLite em memória).
+      Por que: evita dependência do Postgres local e torna os testes repetíveis.
+
+- [ ] Criar fixture de usuário autenticado + helper para gerar token.
+      Por que: reduz duplicação e acelera escrita dos testes de rotas protegidas.
+
+- [ ] Garantir limpeza de estado entre testes (sem vazamento de dados).
+      Por que: elimina testes flakey e resultados não determinísticos.

@@ -15,6 +15,7 @@ class User(Base):
     email: Mapped[str] = mapped_column(unique=True, index=True)
     hashed_password: Mapped[str]
     tasks: Mapped[List["Task"]] = relationship("Task", back_populates="user")
+    sessions = relationship("Session", back_populates="user")
 
     def __repr__(self):
         return f"<User(name='{self.name}', email='{self.email}')>"
