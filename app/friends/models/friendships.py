@@ -34,6 +34,6 @@ class Friendship(Base):
         "User", foreign_keys=[receiver_id], back_populates="received_friendships"
     )
 
-    _table_args__ = (
+    __table_args__ = (
         CheckConstraint("requester_id != receiver_id", name="check_no_self_friendship"),
     )

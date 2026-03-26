@@ -24,10 +24,10 @@ class FriendService:
         return self.repository.send_friend_request(requester_id, receiver_id)
 
     def accept_friend_request(self, requester_id: int, receiver_id: int) -> Friendship:
-        Friendship = self.repository.get_friendship(requester_id, receiver_id)
-        if not Friendship:
+        friendship = self.repository.get_friendship(requester_id, receiver_id)
+        if not friendship:
             raise HTTPException(status_code=404, detail="Friend request not found.")
-        if Friendship.status != Status.PENDING:
+        if friendship.status != Status.PENDING:
             raise HTTPException(
                 status_code=400, detail="Friend request is not pending."
             )
@@ -36,10 +36,10 @@ class FriendService:
         )
 
     def refuse_friend_request(self, requester_id: int, receiver_id: int) -> Friendship:
-        Friendship = self.repository.get_friendship(requester_id, receiver_id)
-        if not Friendship:
+        friendship = self.repository.get_friendship(requester_id, receiver_id)
+        if not friendship:
             raise HTTPException(status_code=404, detail="Friend request not found.")
-        if Friendship.status != Status.PENDING:
+        if friendship.status != Status.PENDING:
             raise HTTPException(
                 status_code=400, detail="Friend request is not pending."
             )
@@ -58,6 +58,12 @@ class FriendService:
         if not friendship:
             raise HTTPException(status_code=404, detail="Friendship not found.")
         self.repository.remove_friend(requester_id, receiver_id)
+
+    def get_friendship_status(self, requester_id: int, receiver_id: int) -> Friendship:
+        friendship = self.repository.get_friendship(requester_id, receiver_id)
+        if not friendship:
+            raise HTTPException(status_code=404, detail="Friendship not found.")
+        return friendship
 
     def get_pending_friend_requests(self, user_id: int) -> list[Friendship]:
         return self.repository.get_pending_friend_requests(user_id)

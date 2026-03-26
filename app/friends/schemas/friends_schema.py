@@ -21,5 +21,4 @@ class FriendshipResponse(FriendshipBase):
     id: int
     status: FriendshipStatus
 
-    class Config:
-        orm_mode = True
+    model_config = {"from_attributes": True}
