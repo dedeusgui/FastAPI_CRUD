@@ -61,18 +61,17 @@ def remove_friend(
     friend_service.remove_friend(friendship.requester_id, friendship.receiver_id)
 
 
-@router.get("/status", response_model=FriendshipResponse)
+@router.get("/status/{friend_id}", response_model=FriendshipStatus)
 def get_friendship_status(
-    friendship: FriendshipBase,
+    friend_id: int,
     user: User = Depends(get_current_user),
     friend_service=Depends(get_friend_service),
 ):
-    return friend_service.get_friendship_status(
-        friendship.requester_id, friendship.receiver_id
-    )
+    friendship = friend_service.get_friendship_status(user.id, friend_id)
+    return friendship.status
 
 
-@router.get("/pending/{user_id}", response_model=list[FriendshipResponse])
+@router.get("/pending-requests/{user_id}", response_model=list[FriendshipResponse])
 def get_pending_friend_requests(
     user_id: int,
     user: User = Depends(get_current_user),

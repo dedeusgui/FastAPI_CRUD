@@ -270,10 +270,8 @@ def test_status_returns_pending_and_accepted(client, register_user, login_user):
         cookies={"access_token": token_requester},
     )
 
-    pending_status = client.request(
-        "GET",
-        "/friends/status",
-        json={"requester_id": requester_id, "receiver_id": receiver_id},
+    pending_status = client.get(
+        f"/friends/status/{receiver_id}",
         cookies={"access_token": token_requester},
     )
 
@@ -283,17 +281,15 @@ def test_status_returns_pending_and_accepted(client, register_user, login_user):
         cookies={"access_token": token_receiver},
     )
 
-    accepted_status = client.request(
-        "GET",
-        "/friends/status",
-        json={"requester_id": requester_id, "receiver_id": receiver_id},
+    accepted_status = client.get(
+        f"/friends/status/{receiver_id}",
         cookies={"access_token": token_requester},
     )
 
     assert pending_status.status_code == 200
-    assert pending_status.json()["status"] == "pending"
+    assert pending_status.json() == "pending"
     assert accepted_status.status_code == 200
-    assert accepted_status.json()["status"] == "accepted"
+    assert accepted_status.json() == "accepted"
 
 
 def test_get_pending_requests_only_for_authenticated_user(
@@ -331,10 +327,12 @@ def test_get_pending_requests_only_for_authenticated_user(
     )
 
     own_pending = client.get(
-        f"/friends/pending/{receiver_id}", cookies={"access_token": token_receiver}
+        f"/friends/pending-requests/{receiver_id}",
+        cookies={"access_token": token_receiver},
     )
     forbidden_pending = client.get(
-        f"/friends/pending/{receiver_id}", cookies={"access_token": token_other}
+        f"/friends/pending-requests/{receiver_id}",
+        cookies={"access_token": token_other},
     )
 
     assert own_pending.status_code == 200
@@ -393,11 +391,9 @@ def test_remove_friendship_success_and_forbidden(client, register_user, login_us
         cookies={"access_token": token_receiver},
     )
 
-    status_after_remove = client.request(
-        "GET",
-        "/friends/status",
-        json={"requester_id": requester_id, "receiver_id": receiver_id},
-        cookies={"access_token": token_receiver},
+    status_after_remove = client.get(
+        f"/friends/status/{receiver_id}",
+        cookies={"access_token": token_requester},
     )
 
     assert forbidden_remove.status_code == 403
@@ -427,10 +423,8 @@ def test_get_friendship_status_not_found_returns_404(client, register_user, logi
         password="testpassword",
     )
 
-    response = client.request(
-        "GET",
-        "/friends/status",
-        json={"requester_id": requester_id, "receiver_id": receiver_id},
+    response = client.get(
+        f"/friends/status/{receiver_id}",
         cookies={"access_token": token},
     )
 
