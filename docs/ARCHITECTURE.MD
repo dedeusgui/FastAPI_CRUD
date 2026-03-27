@@ -2,39 +2,53 @@
 
 ## Objetivo
 
-Este projeto implementa uma API REST em FastAPI, com separação por domínio (`user`, `tasks`, `friends`, `auth`) e por responsabilidade técnica. O foco da arquitetura é manter o código simples, testável e fácil de evoluir.
+Este projeto implementa uma API REST em FastAPI para portfolio, com foco em simplicidade, separação de responsabilidades e facilidade de manutenção. A aplicação está organizada por domínio (`user`, `tasks`, `friends`, `auth`) e por camada técnica.
 
 ## Camadas
 
-1. `routes`
-   Responsável por expor endpoints HTTP, validar entrada/saída com schemas e delegar a execução para a camada de serviço.
+1. `routes`  
+   Expõem endpoints HTTP e delegam o fluxo para a camada de serviço.
 
-2. `services`
-   Responsável pelas regras de negócio, orquestração de fluxos e validações de domínio.
+2. `services`  
+   Centralizam regras de negócio, autorizações e orquestração do fluxo.
 
-3. `repositories`
-   Responsável pelo acesso a dados com SQLAlchemy (consultas, persistência e remoção).
+3. `repositories`  
+   Isolam o acesso a dados com SQLAlchemy.
 
-4. `models`
-   Responsável por mapear entidades e tabelas do banco de dados.
+4. `models`  
+   Mapeiam entidades e tabelas do banco.
 
-5. `schemas`
-   Responsável por definir contratos de entrada e saída da API (Pydantic).
+5. `schemas`  
+   Definem contratos de entrada e saída com Pydantic.
 
 ## Fluxo padrão
 
 `request HTTP -> route -> service -> repository -> banco -> response`
 
-Esse fluxo evita acoplamento entre endpoint e banco, além de centralizar regras de negócio na camada correta.
+Esse fluxo reduz acoplamento entre endpoint e persistência e deixa as regras de domínio concentradas em um ponto previsível.
+
+## Contextos atuais
+
+- `user`: cadastro, login e leitura do usuário autenticado
+- `tasks`: CRUD básico de tarefas por usuário autenticado
+- `friends`: solicitação, aceite, recusa, remoção e consulta de amizade
+- `auth`: sessão persistida e autenticação por cookie `access_token`
+
+## Autenticação
+
+- O login gera uma sessão e grava um cookie HTTP chamado `access_token`.
+- Endpoints protegidos dependem do usuário autenticado resolvido por dependências compartilhadas.
+- O projeto usa autenticação por sessão, não JWT exposto ao cliente via header.
 
 ## Decisões arquiteturais
 
-- Organização por domínio para facilitar manutenção e escalar funcionalidades sem misturar contextos.
-- Padrão em camadas para isolar responsabilidades e reduzir efeitos colaterais.
-- Regras de negócio concentradas em `services`, evitando lógica de domínio em `routes`.
-- Acesso a dados concentrado em `repositories`, evitando consultas espalhadas pelo projeto.
+- Organização por domínio para manter contextos isolados.
+- Padrão em camadas para evitar lógica de negócio em rotas.
+- Regras de negócio concentradas em `services`.
+- Acesso a dados concentrado em `repositories`.
+- Testes de comportamento cobrindo os fluxos principais da API.
 
 ## Escopo atual
 
-- O projeto cobre o back-end da aplicação.
-- Integrações de front-end estão fora do escopo desta arquitetura no momento.
+- A documentação atual cobre o back-end da aplicação.
+- A pasta `frontend` existe, mas ainda não define uma implementação relevante para documentação funcional.
