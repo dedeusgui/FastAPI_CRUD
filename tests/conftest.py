@@ -10,6 +10,7 @@ from config.database import get_db
 from app.auth.models.session import Session as AuthSession
 from app.tasks.models.tasks import Task
 from app.user.models.user import User
+from app.friends.models.friendships import Friendship
 from app.user.repositories.user_repository import UserRepository
 from app.user.services.user_service import UserService
 
@@ -25,7 +26,12 @@ def db_session():
 
     Base.metadata.create_all(
         bind=engine,
-        tables=[User.__table__, Task.__table__, AuthSession.__table__],
+        tables=[
+            User.__table__,
+            Task.__table__,
+            AuthSession.__table__,
+            Friendship.__table__,
+        ],
     )
     db = SessionTesting()
     try:
@@ -34,7 +40,12 @@ def db_session():
         db.close()
         Base.metadata.drop_all(
             bind=engine,
-            tables=[User.__table__, Task.__table__, AuthSession.__table__],
+            tables=[
+                User.__table__,
+                Task.__table__,
+                AuthSession.__table__,
+                Friendship.__table__,
+            ],
         )
 
 
@@ -88,3 +99,13 @@ def login_user(client):
         return response, token
 
     return _login
+
+
+@pytest.fixture
+def auth_headers(login_user, register_user):
+    def _auth_headers(name: str, email: str, password: str):
+        register_user(name=name, email=email, password=password)
+        _, token = login_user(email, password)
+        return {"access_token": token}
+
+    return _auth_headers
