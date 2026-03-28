@@ -101,24 +101,28 @@ export function DashboardPage() {
     {
       label: "Total de tarefas",
       value: tasks.length,
+      note: "Tudo o que está registrado na sua rotina.",
       icon: metricIcons.total,
       accent: "icon-blue",
     },
     {
       label: "Concluídas",
       value: completedTasks,
+      note: "Itens que já avançaram até o fim.",
       icon: metricIcons.done,
       accent: "icon-green",
     },
     {
       label: "Pendentes",
       value: pendingTasks,
+      note: "O que ainda merece sua atenção.",
       icon: metricIcons.pending,
       accent: "icon-amber",
     },
     {
-      label: "Amigos ativos",
+      label: "Conexões ativas",
       value: friends.length,
+      note: "Pessoas já confirmadas na sua rede.",
       icon: metricIcons.friends,
       accent: "icon-rose",
     },
@@ -128,9 +132,9 @@ export function DashboardPage() {
     return (
       <div className="page-stack">
         <section className="surface-card loading-card">
-          <span className="eyebrow">Dashboard</span>
-          <h1>Carregando sua visão geral</h1>
-          <p>Buscando tarefas, amizades e solicitações pendentes na API.</p>
+          <span className="eyebrow">Painel</span>
+          <h1>Preparando sua visão do dia</h1>
+          <p>Carregando tarefas, conexões e pendências da sua conta.</p>
         </section>
       </div>
     );
@@ -138,26 +142,37 @@ export function DashboardPage() {
 
   return (
     <div className="page-stack">
-      <section className="page-header">
-        <div>
-          <span className="eyebrow">Dashboard</span>
-          <h1>Bom te ver, {user?.name}</h1>
+      <section className="page-hero-card">
+        <div className="page-hero-copy">
+          <span className="eyebrow">Painel</span>
+          <h1>Um resumo claro para retomar sua rotina com contexto.</h1>
           <p>
-            Tudo o que aparece aqui reflete o estado atual da sua conta, com
-            foco em leitura rápida e nas ações que realmente pedem atenção.
+            Veja o que está em andamento, o que já foi resolvido e quais
+            relações ainda precisam de resposta. Tudo em uma leitura mais leve,
+            com espaço para entender antes de agir.
           </p>
         </div>
-        <div className="header-chip">
-          <ChartNoAxesCombined size={18} />
-          <span>Conta ativa: {user?.email}</span>
+
+        <div className="page-hero-aside page-hero-stats">
+          <div className="header-chip header-chip-spacious">
+            <ChartNoAxesCombined size={18} />
+            <span>{pendingTasks} prioridades em aberto</span>
+          </div>
+          <div className="hero-account-card">
+            <div className="avatar avatar-xl">{getInitials(user?.name ?? "Avel")}</div>
+            <div>
+              <strong>{user?.name}</strong>
+              <p>{user?.email}</p>
+            </div>
+          </div>
         </div>
       </section>
 
       {error ? <p className="form-feedback form-feedback-error">{error}</p> : null}
 
-      <section className="metric-grid">
-        {metrics.map(({ label, value, icon: Icon, accent }) => (
-          <article className="surface-card metric-card" key={label}>
+      <section className="metric-grid metric-grid-spacious">
+        {metrics.map(({ label, value, note, icon: Icon, accent }) => (
+          <article className="surface-card metric-card metric-card-spacious" key={label}>
             <div className="metric-card-header">
               <div className={`feature-icon ${accent}`}>
                 <Icon size={18} />
@@ -165,40 +180,36 @@ export function DashboardPage() {
               <span>{label}</span>
             </div>
             <strong>{value}</strong>
-            <p className="metric-card-note">
-              {label === "Total de tarefas"
-                ? "Volume geral da sua rotina."
-                : label === "Concluídas"
-                  ? "Itens já resolvidos."
-                  : label === "Pendentes"
-                    ? "O que ainda depende de você."
-                    : "Pessoas já conectadas à sua conta."}
-            </p>
+            <p className="metric-card-note">{note}</p>
           </article>
         ))}
       </section>
 
-      <section className="content-grid">
-        <article className="surface-card">
-          <div className="section-heading">
+      <section className="content-grid content-grid-featured dashboard-board">
+        <article className="surface-card surface-card-spacious">
+          <div className="section-heading section-heading-spacious">
             <div>
-              <span className="eyebrow">Foco</span>
+              <span className="eyebrow">Em foco</span>
               <h2>O que merece atenção agora</h2>
+              <p className="section-supporting-text">
+                Uma leitura curta das tarefas mais relevantes para você retomar
+                o ritmo sem percorrer a lista inteira.
+              </p>
             </div>
             <Link className="soft-button" to="/tarefas">
               Abrir tarefas
             </Link>
           </div>
 
-          <div className="stack-list">
+          <div className="stack-list stack-list-spacious">
             {tasksToShow.length === 0 ? (
               <div className="empty-state">
-                <strong>Nenhuma tarefa encontrada</strong>
-                <p>Crie sua primeira tarefa para começar a organizar a rotina com mais clareza.</p>
+                <strong>Nenhuma tarefa registrada</strong>
+                <p>Adicione sua primeira tarefa para começar a organizar o que vem pela frente.</p>
               </div>
             ) : (
               tasksToShow.slice(0, 4).map((task) => (
-                <div className="list-row" key={task.id}>
+                <div className="list-row list-row-spacious" key={task.id}>
                   <div>
                     <strong>{task.title}</strong>
                     <p>{task.description ?? "Sem descrição adicional informada."}</p>
@@ -214,28 +225,31 @@ export function DashboardPage() {
           </div>
         </article>
 
-        <article className="surface-card">
-          <div className="section-heading">
+        <article className="surface-card surface-card-spacious">
+          <div className="section-heading section-heading-spacious">
             <div>
               <span className="eyebrow">Pendências</span>
-              <h2>Solicitações recebidas</h2>
+              <h2>Convites aguardando resposta</h2>
+              <p className="section-supporting-text">
+                Mantenha a rede organizada respondendo ao que ainda está em aberto.
+              </p>
             </div>
-            <StatusBadge tone="warning">{pendingRequests.length} abertas</StatusBadge>
+            <StatusBadge tone="warning">{pendingRequests.length} aguardando</StatusBadge>
           </div>
 
-          <div className="stack-list">
+          <div className="stack-list stack-list-spacious">
             {pendingRequests.length === 0 ? (
               <div className="empty-state">
-                <strong>Nada pendente por aqui</strong>
-                <p>Sua fila de convites recebidos está vazia no momento.</p>
+                <strong>Nenhum convite pendente</strong>
+                <p>Sua fila de solicitações está vazia no momento.</p>
               </div>
             ) : (
               pendingRequests.map((request) => (
-                <div className="friend-row" key={request.id}>
+                <div className="friend-row friend-row-spacious" key={request.id}>
                   <div className="avatar">#{request.requester_id}</div>
                   <div>
-                    <strong>Solicitação do usuário #{request.requester_id}</strong>
-                    <p>Convite recebido para a conta autenticada #{request.receiver_id}.</p>
+                    <strong>Convite do usuário #{request.requester_id}</strong>
+                    <p>Solicitação recebida para a conta atual.</p>
                   </div>
                   <StatusBadge tone="warning">Pendente</StatusBadge>
                 </div>
@@ -245,46 +259,52 @@ export function DashboardPage() {
         </article>
       </section>
 
-      <section className="content-grid">
-        <article className="surface-card">
-          <div className="section-heading">
+      <section className="content-grid content-grid-featured dashboard-support">
+        <article className="surface-card surface-card-spacious">
+          <div className="section-heading section-heading-spacious">
             <div>
-              <span className="eyebrow">Amigos</span>
-              <h2>Sua rede ativa</h2>
+              <span className="eyebrow">Rede ativa</span>
+              <h2>Conexões que já fazem parte do seu espaço</h2>
+              <p className="section-supporting-text">
+                Visualize rapidamente quem está conectado à sua conta hoje.
+              </p>
             </div>
-            <StatusBadge tone="primary">{friends.length} conectados</StatusBadge>
+            <StatusBadge tone="primary">{friends.length} conexões</StatusBadge>
           </div>
 
-          <div className="stack-list">
+          <div className="stack-list stack-list-spacious">
             {friends.length === 0 ? (
               <div className="empty-state">
-                <strong>Sem amizades aceitas</strong>
-                <p>Assim que houver conexões aceitas, elas vão aparecer aqui.</p>
+                <strong>Sem conexões ativas</strong>
+                <p>Assim que houver amizades aceitas, elas vão aparecer aqui.</p>
               </div>
             ) : (
               friends.map((friend) => (
-                <div className="friend-row" key={friend.id}>
+                <div className="friend-row friend-row-spacious" key={friend.id}>
                   <div className="avatar">{getInitials(friend.name)}</div>
                   <div>
                     <strong>{friend.name}</strong>
                     <p>{friend.email}</p>
                   </div>
-                  <StatusBadge tone="success">Ativo</StatusBadge>
+                  <StatusBadge tone="success">Ativa</StatusBadge>
                 </div>
               ))
             )}
           </div>
         </article>
 
-        <article className="surface-card">
-          <div className="section-heading">
+        <article className="surface-card surface-card-spacious">
+          <div className="section-heading section-heading-spacious">
             <div>
-              <span className="eyebrow">Sessão</span>
-              <h2>Identidade da conta</h2>
+              <span className="eyebrow">Conta</span>
+              <h2>Sua presença na plataforma</h2>
+              <p className="section-supporting-text">
+                Um resumo simples da conta em uso para reduzir dúvida e reforçar contexto.
+              </p>
             </div>
           </div>
 
-          <div className="profile-card">
+          <div className="profile-card profile-card-spacious">
             <div className="avatar avatar-xl">{getInitials(user?.name ?? "Avel")}</div>
             <div>
               <strong>{user?.name}</strong>
@@ -293,18 +313,18 @@ export function DashboardPage() {
           </div>
 
           <div className="stack-list stack-list-tight">
-            <div className="list-row">
+            <div className="list-row list-row-spacious">
               <div>
-                <strong>Sessão autenticada</strong>
-                <p>O acesso foi validado com base em `/users/me`.</p>
+                <strong>Sessão em andamento</strong>
+                <p>Você está autenticado e pronto para continuar usando a plataforma.</p>
               </div>
-              <StatusBadge tone="success">Válida</StatusBadge>
+              <StatusBadge tone="success">Ativa</StatusBadge>
             </div>
 
-            <div className="list-row">
+            <div className="list-row list-row-spacious">
               <div>
-                <strong>Canal de contato</strong>
-                <p>O e-mail abaixo representa a conta autenticada no momento.</p>
+                <strong>E-mail principal</strong>
+                <p>Canal associado à conta utilizada neste momento.</p>
               </div>
               <div className="row-meta">
                 <Mail size={16} />

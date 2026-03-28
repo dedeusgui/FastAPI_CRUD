@@ -1,10 +1,10 @@
 import {
   ArrowRight,
+  CalendarRange,
   ChartNoAxesCombined,
-  LockKeyhole,
-  MoveRight,
-  Star,
+  CheckCheck,
   ShieldCheck,
+  Sparkles,
   Users,
 } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -14,22 +14,40 @@ import { useAuth } from "../context/AuthContext";
 
 const highlights = [
   {
-    title: "Rotina mais legível",
-    description: "Prioridades, conexões e progresso em uma interface que ajuda a decidir o próximo passo.",
-    icon: Star,
+    title: "Rotina com foco real",
+    description:
+      "Tarefas, prioridades e próximos passos aparecem em uma hierarquia clara, sem ruído visual desnecessário.",
+    icon: CheckCheck,
     colorClass: "icon-blue",
   },
   {
-    title: "Sessão de verdade",
-    description: "Login persistido por cookie HTTP-only e navegação protegida pelo estado real da conta.",
-    icon: LockKeyhole,
-    colorClass: "icon-rose",
-  },
-  {
-    title: "Base pronta para evoluir",
-    description: "O front conversa com a API atual sem depender de dados falsos nem de cenários artificiais.",
+    title: "Visão de progresso",
+    description:
+      "O painel transforma o estado atual da sua conta em sinais simples para acompanhar o que avança e o que pede atenção.",
     icon: ChartNoAxesCombined,
     colorClass: "icon-green",
+  },
+  {
+    title: "Relacionamentos em ordem",
+    description:
+      "Convites pendentes e conexões ativas ficam separados com clareza para você agir sem perder contexto.",
+    icon: Users,
+    colorClass: "icon-rose",
+  },
+];
+
+const productSignals = [
+  {
+    label: "Organização central",
+    value: "Tarefas, conexões e conta em um só fluxo.",
+  },
+  {
+    label: "Leitura tranquila",
+    value: "Mais espaço, menos blocos disputando atenção.",
+  },
+  {
+    label: "Uso diário",
+    value: "Interface desenhada para acompanhar a rotina.",
   },
 ];
 
@@ -52,104 +70,118 @@ export function LandingPage() {
         </div>
       </header>
 
-      <section className="hero-grid">
-        <div className="hero-copy">
-          <span className="eyebrow">Front-end conectado ao seu back-end</span>
-          <h1>Organize tarefas e conexões em uma experiência que finalmente parece produto.</h1>
+      <section className="hero-grid hero-grid-editorial">
+        <div className="hero-copy hero-copy-editorial">
+          <span className="eyebrow">Avel</span>
+          <h1>Produtividade com clareza, contexto e espaço para a rotina respirar.</h1>
           <p>
-            A Avel transforma a base atual da sua API em uma experiência mais
-            clara, confiável e agradável de usar, com autenticação real,
-            dashboard útil e fluxo direto para a rotina acontecer.
+            A Avel organiza tarefas, conexões e andamento do seu dia em uma
+            experiência mais calma, legível e profissional. Em vez de competir
+            por atenção, cada área da interface ajuda você a entender o cenário
+            e agir com rapidez.
           </p>
-          <div className="hero-summary">
-            <div className="hero-stat">
-              <strong>Leitura rápida</strong>
-              <span>Hierarquia visual melhor resolvida para identificar o que importa.</span>
-            </div>
-            <div className="hero-stat">
-              <strong>Dados reais</strong>
-              <span>Tarefas, amizades e sessão refletindo o estado atual da aplicação.</span>
-            </div>
-          </div>
+
           <div className="hero-actions">
-            <Link className="primary-button" to={user ? "/dashboard" : "/entrar"}>
-              {user ? "Abrir painel" : "Entrar na Avel"}
+            <Link className="primary-button" to={user ? "/dashboard" : "/criar-conta"}>
+              {user ? "Ir para o painel" : "Começar agora"}
               <ArrowRight size={18} />
             </Link>
-            {!user ? (
-              <Link className="secondary-button" to="/criar-conta">
-                Criar conta
-              </Link>
-            ) : (
-              <Link className="secondary-button" to="/tarefas">
-                Ver tarefas
-              </Link>
-            )}
+            <Link className="secondary-button" to={user ? "/tarefas" : "/entrar"}>
+              {user ? "Ver tarefas" : "Entrar na conta"}
+            </Link>
           </div>
 
-          <div className="hero-proof">
+          <div className="hero-proof hero-proof-stacked">
             <div className="proof-chip">
               <ShieldCheck size={16} />
-              <span>Autenticação persistida por cookie</span>
+              <span>Acesso seguro e contínuo</span>
             </div>
             <div className="proof-chip">
-              <Users size={16} />
-              <span>Tarefas e amizades vindas da API</span>
+              <CalendarRange size={16} />
+              <span>Fluxo pensado para uso diário</span>
             </div>
             <div className="proof-chip">
-              <MoveRight size={16} />
-              <span>Fluxo simples, pronto para evoluir</span>
+              <Sparkles size={16} />
+              <span>Linguagem e interface de produto</span>
             </div>
           </div>
         </div>
 
         <div className="hero-preview">
-          <div className="preview-window">
+          <div className="preview-window preview-window-editorial">
             <div className="preview-bar">
               <span className="preview-dot preview-dot-red" />
               <span className="preview-dot preview-dot-yellow" />
               <span className="preview-dot preview-dot-green" />
             </div>
 
-            <div className="preview-grid">
-              <article className="preview-card preview-card-wide">
-                <div className="preview-icon icon-green">
-                  <ChartNoAxesCombined size={18} />
+            <div className="hero-preview-panel">
+              <div className="hero-preview-block hero-preview-block-primary">
+                <div className="preview-copy">
+                  <span className="eyebrow">Visão geral</span>
+                  <strong>Um painel que mostra prioridades, progresso e relações ativas sem sobrecarregar a leitura.</strong>
                 </div>
-                <strong>Visão geral com contexto real</strong>
-                <p>Métricas derivadas da API e foco no que está pendente, concluído e em movimento.</p>
-              </article>
+                <div className="preview-metric-row">
+                  {productSignals.map((signal) => (
+                    <article className="preview-stat-card" key={signal.label}>
+                      <span>{signal.label}</span>
+                      <strong>{signal.value}</strong>
+                    </article>
+                  ))}
+                </div>
+              </div>
 
-              <article className="preview-card">
-                <div className="preview-icon icon-blue">
-                  <LockKeyhole size={18} />
-                </div>
-                <strong>Acesso sem atrito</strong>
-                <p>Cadastro e login com linguagem melhor, feedback claro e menos aparência de protótipo.</p>
-              </article>
+              <div className="preview-grid preview-grid-editorial">
+                <article className="preview-card">
+                  <div className="preview-icon icon-green">
+                    <ChartNoAxesCombined size={18} />
+                  </div>
+                  <strong>Resumo com contexto</strong>
+                  <p>
+                    Indicadores e listas curtas ajudam a identificar o que está
+                    em andamento sem exigir leitura excessiva.
+                  </p>
+                </article>
 
-              <article className="preview-card">
-                <div className="preview-icon icon-rose">
-                  <Users size={18} />
-                </div>
-                <strong>Conexões mais legíveis</strong>
-                <p>Pedidos pendentes, amizades aceitas e ações visíveis sem sobrecarga visual.</p>
-              </article>
+                <article className="preview-card">
+                  <div className="preview-icon icon-rose">
+                    <Users size={18} />
+                  </div>
+                  <strong>Conexões organizadas</strong>
+                  <p>
+                    Convites e relações ativas aparecem separados para facilitar
+                    decisão e acompanhamento.
+                  </p>
+                </article>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      <section className="highlight-grid">
-        {highlights.map(({ title, description, icon: Icon, colorClass }) => (
-          <article className="surface-card" key={title}>
-            <div className={`feature-icon ${colorClass}`}>
-              <Icon size={18} />
-            </div>
-            <h2>{title}</h2>
-            <p>{description}</p>
-          </article>
-        ))}
+      <section className="landing-section">
+        <div className="section-heading section-heading-spacious">
+          <div>
+            <span className="eyebrow">Por que a Avel</span>
+            <h2>Menos densidade. Mais controle.</h2>
+            <p className="section-supporting-text">
+              A experiência foi redesenhada para caber melhor no ritmo real de
+              quem precisa decidir, priorizar e seguir adiante.
+            </p>
+          </div>
+        </div>
+
+        <div className="highlight-grid highlight-grid-thirds">
+          {highlights.map(({ title, description, icon: Icon, colorClass }) => (
+            <article className="surface-card surface-card-spacious" key={title}>
+              <div className={`feature-icon ${colorClass}`}>
+                <Icon size={18} />
+              </div>
+              <h2>{title}</h2>
+              <p>{description}</p>
+            </article>
+          ))}
+        </div>
       </section>
     </div>
   );

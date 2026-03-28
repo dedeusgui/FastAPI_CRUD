@@ -114,6 +114,9 @@ export function TasksPage() {
     return true;
   });
 
+  const completedTasks = tasks.filter((task) => task.completed).length;
+  const pendingTasks = tasks.length - completedTasks;
+
   async function handleCreateTask(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError("");
@@ -229,7 +232,7 @@ export function TasksPage() {
         <section className="surface-card loading-card">
           <span className="eyebrow">Tarefas</span>
           <h1>Carregando sua lista</h1>
-          <p>Buscando o estado atual das tarefas diretamente na API.</p>
+          <p>Preparando a visão atual das suas tarefas.</p>
         </section>
       </div>
     );
@@ -237,77 +240,94 @@ export function TasksPage() {
 
   return (
     <div className="page-stack">
-      <section className="page-header">
-        <div>
+      <section className="page-hero-card">
+        <div className="page-hero-copy">
           <span className="eyebrow">Tarefas</span>
-          <h1>Organize o que precisa acontecer sem perder contexto</h1>
+          <h1>Organize o que precisa acontecer com espaço para pensar.</h1>
           <p>
-            A lista trabalha com o que o back-end entrega hoje, com foco em
-            leitura, edição rápida e feedback consistente após cada ação.
+            Acompanhe sua lista, filtre rapidamente e ajuste cada item sem se
+            perder em um layout apertado. O foco aqui é manter contexto e
+            fluidez na execução.
           </p>
         </div>
-        <div className="header-chip">
-          <ListTodo size={18} />
-          <span>{visibleTasks.length} itens visíveis</span>
+
+        <div className="page-hero-aside page-hero-stats">
+          <div className="header-chip header-chip-spacious">
+            <ListTodo size={18} />
+            <span>{visibleTasks.length} itens visíveis</span>
+          </div>
+          <div className="inline-metric-grid">
+            <article className="inline-metric-card">
+              <span>Pendentes</span>
+              <strong>{pendingTasks}</strong>
+            </article>
+            <article className="inline-metric-card">
+              <span>Concluídas</span>
+              <strong>{completedTasks}</strong>
+            </article>
+          </div>
         </div>
       </section>
 
       {error ? <p className="form-feedback form-feedback-error">{error}</p> : null}
       {feedback ? <p className="form-feedback form-feedback-success">{feedback}</p> : null}
 
-      <section className="surface-card task-composer-card">
-        <div className="section-heading">
-          <div>
-            <span className="eyebrow">Nova tarefa</span>
-            <h2>Adicionar um novo item</h2>
-            <p className="section-supporting-text">
-              Descreva o essencial. Se precisar, você poderá editar depois.
-            </p>
-          </div>
-        </div>
-
-        <form className="task-form" onSubmit={handleCreateTask}>
-          <label className="field">
-            <span>Título</span>
-            <div className="field-input">
-              <input
-                placeholder="Ex.: Revisar validação do fluxo de login"
-                type="text"
-                value={title}
-                onChange={(event) => setTitle(event.target.value)}
-              />
+      <section className="content-grid content-grid-featured tasks-overview-grid">
+        <article className="surface-card surface-card-spacious task-composer-card">
+          <div className="section-heading section-heading-spacious">
+            <div>
+              <span className="eyebrow">Nova tarefa</span>
+              <h2>Registrar um novo item</h2>
+              <p className="section-supporting-text">
+                Descreva o essencial agora. Se precisar, você pode refinar depois.
+              </p>
             </div>
-          </label>
-
-          <label className="field">
-            <span>Descrição</span>
-            <div className="field-input field-textarea">
-              <textarea
-                placeholder="Opcional. Adicione um contexto curto para facilitar a execução."
-                rows={4}
-                value={description}
-                onChange={(event) => setDescription(event.target.value)}
-              />
-            </div>
-          </label>
-
-          <button className="primary-button" disabled={isSubmitting} type="submit">
-            <Plus size={18} />
-            {isSubmitting ? "Criando..." : "Criar tarefa"}
-          </button>
-        </form>
-      </section>
-
-      <section className="surface-card">
-        <div className="section-heading">
-          <div>
-            <span className="eyebrow">Lista atual</span>
-            <h2>Controle de visualização</h2>
-            <p className="section-supporting-text">
-              Filtre rapidamente para enxergar o que está pendente ou já concluído.
-            </p>
           </div>
-          <div className="filter-row">
+
+          <form className="task-form" onSubmit={handleCreateTask}>
+            <label className="field">
+              <span>Título</span>
+              <div className="field-input">
+                <input
+                  placeholder="Ex.: Revisar prioridades da semana"
+                  type="text"
+                  value={title}
+                  onChange={(event) => setTitle(event.target.value)}
+                />
+              </div>
+            </label>
+
+            <label className="field">
+              <span>Descrição</span>
+              <div className="field-input field-textarea">
+                <textarea
+                  placeholder="Adicione um contexto curto para facilitar a execução."
+                  rows={4}
+                  value={description}
+                  onChange={(event) => setDescription(event.target.value)}
+                />
+              </div>
+            </label>
+
+            <button className="primary-button" disabled={isSubmitting} type="submit">
+              <Plus size={18} />
+              {isSubmitting ? "Criando..." : "Criar tarefa"}
+            </button>
+          </form>
+        </article>
+
+        <article className="surface-card surface-card-spacious">
+          <div className="section-heading section-heading-spacious">
+            <div>
+              <span className="eyebrow">Visualização</span>
+              <h2>Encontre rapidamente o que importa</h2>
+              <p className="section-supporting-text">
+                Alterne entre pendências e concluídas para limpar a leitura da lista.
+              </p>
+            </div>
+          </div>
+
+          <div className="filter-row filter-row-spacious">
             {filterOptions.map(({ value, label }) => (
               <button
                 key={value}
@@ -321,9 +341,21 @@ export function TasksPage() {
               </button>
             ))}
           </div>
+        </article>
+      </section>
+
+      <section className="surface-card surface-card-spacious">
+        <div className="section-heading section-heading-spacious">
+          <div>
+            <span className="eyebrow">Lista atual</span>
+            <h2>Sua rotina, item por item</h2>
+            <p className="section-supporting-text">
+              Cada tarefa foi organizada para caber com folga, deixar o status visível e permitir ação rápida.
+            </p>
+          </div>
         </div>
 
-        <div className="stack-list">
+        <div className="stack-list stack-list-spacious">
           {visibleTasks.length === 0 ? (
             <div className="empty-state">
               <strong>Nenhuma tarefa neste filtro</strong>
@@ -331,7 +363,7 @@ export function TasksPage() {
             </div>
           ) : (
             visibleTasks.map((task) => (
-              <article className="task-card" key={task.id}>
+              <article className="task-card task-card-spacious" key={task.id}>
                 <div
                   className={task.completed ? "task-toggle task-toggle-done" : "task-toggle"}
                 >
@@ -339,7 +371,7 @@ export function TasksPage() {
                 </div>
 
                 <div className="task-copy">
-                  <div className="task-title-row">
+                  <div className="task-title-row task-title-row-spacious">
                     <div>
                       <strong>{task.title}</strong>
                       <p>{task.description ?? "Sem descrição adicional informada."}</p>
@@ -377,7 +409,7 @@ export function TasksPage() {
                   ) : null}
                 </div>
 
-                <div className="task-actions">
+                <div className="task-actions task-actions-spacious">
                   {editingTaskId === task.id ? (
                     <>
                       <button className="soft-button" type="button" onClick={() => handleSaveTask(task.id)}>

@@ -61,7 +61,7 @@ export function FriendsPage() {
         setError(
           loadError instanceof Error
             ? loadError.message
-            : "Não foi possível carregar suas amizades.",
+            : "Não foi possível carregar suas conexões.",
         );
       } finally {
         if (active) {
@@ -103,7 +103,7 @@ export function FriendsPage() {
       setError(
         refreshError instanceof Error
           ? refreshError.message
-          : "Não foi possível atualizar sua lista de amizades.",
+          : "Não foi possível atualizar suas conexões.",
       );
     }
   }
@@ -156,12 +156,12 @@ export function FriendsPage() {
 
     try {
       await removeFriendship(user.id, friend.id);
-      await refreshFriends("Amizade removida.");
+      await refreshFriends("Conexão removida.");
     } catch (actionError) {
       setError(
         actionError instanceof Error
           ? actionError.message
-          : "Não foi possível remover esta amizade.",
+          : "Não foi possível remover esta conexão.",
       );
     }
   }
@@ -170,9 +170,9 @@ export function FriendsPage() {
     return (
       <div className="page-stack">
         <section className="surface-card loading-card">
-          <span className="eyebrow">Amigos</span>
-          <h1>Carregando suas conexões</h1>
-          <p>Buscando amizades aceitas e pendências recebidas na API.</p>
+          <span className="eyebrow">Conexões</span>
+          <h1>Carregando sua rede</h1>
+          <p>Preparando convites e conexões ativas da sua conta.</p>
         </section>
       </div>
     );
@@ -180,46 +180,60 @@ export function FriendsPage() {
 
   return (
     <div className="page-stack">
-      <section className="page-header">
-        <div>
-          <span className="eyebrow">Amigos</span>
-          <h1>Sua rede, com leitura mais direta</h1>
+      <section className="page-hero-card">
+        <div className="page-hero-copy">
+          <span className="eyebrow">Conexões</span>
+          <h1>Uma rede mais organizada para acompanhar quem já está com você.</h1>
           <p>
-            A tela mostra o que a API suporta hoje, mas com organização melhor
-            entre convites pendentes, conexões ativas e ações críticas.
+            Convites e contatos ativos ficam em áreas separadas para facilitar
+            leitura, resposta e manutenção da sua rede sem parecer uma tela
+            carregada demais.
           </p>
         </div>
-        <div className="header-chip">
-          <Users size={18} />
-          <span>{friends.length} ativos</span>
+
+        <div className="page-hero-aside page-hero-stats">
+          <div className="header-chip header-chip-spacious">
+            <Users size={18} />
+            <span>{friends.length} conexões ativas</span>
+          </div>
+          <div className="inline-metric-grid">
+            <article className="inline-metric-card">
+              <span>Pendentes</span>
+              <strong>{pendingRequests.length}</strong>
+            </article>
+            <article className="inline-metric-card">
+              <span>Ativas</span>
+              <strong>{friends.length}</strong>
+            </article>
+          </div>
         </div>
       </section>
 
       {error ? <p className="form-feedback form-feedback-error">{error}</p> : null}
       {feedback ? <p className="form-feedback form-feedback-success">{feedback}</p> : null}
 
-      <section className="content-grid">
-        <article className="surface-card">
-          <div className="section-heading">
+      <section className="content-grid content-grid-featured friends-overview-grid">
+        <article className="surface-card surface-card-spacious">
+          <div className="section-heading section-heading-spacious">
             <div>
               <span className="eyebrow">Pendências</span>
-              <h2>Solicitações em aberto</h2>
+              <h2>Solicitações aguardando resposta</h2>
               <p className="section-supporting-text">
-                Responda aos convites recebidos sem perder o contexto da conta atual.
+                Responda aos convites recebidos sem perder visibilidade do restante da rede.
               </p>
             </div>
             <StatusBadge tone="warning">{pendingRequests.length} aguardando</StatusBadge>
           </div>
 
-          <div className="stack-list">
+          <div className="stack-list stack-list-spacious">
             {pendingRequests.length === 0 ? (
               <div className="empty-state">
                 <strong>Nenhuma solicitação pendente</strong>
-                <p>Quando alguém enviar um convite, ele vai aparecer nesta lista.</p>
+                <p>Quando um novo convite chegar, ele vai aparecer nesta área.</p>
               </div>
             ) : (
               pendingRequests.map((request) => (
-                <div className="friend-card" key={request.id}>
+                <div className="friend-card friend-card-spacious" key={request.id}>
                   <div className="friend-card-top">
                     <div className="avatar avatar-large">#{request.requester_id}</div>
                     <div>
@@ -229,8 +243,8 @@ export function FriendsPage() {
                   </div>
 
                   <p>
-                    A API ainda não expõe nome ou e-mail do remetente nesta
-                    listagem, então a interface trabalha com o identificador real recebido.
+                    Por enquanto, esta listagem mostra o identificador disponível
+                    para manter clareza e consistência na resposta aos convites.
                   </p>
 
                   <div className="friend-card-actions">
@@ -252,30 +266,27 @@ export function FriendsPage() {
           </div>
         </article>
 
-        <article className="surface-card">
-          <div className="section-heading">
+        <article className="surface-card surface-card-spacious">
+          <div className="section-heading section-heading-spacious">
             <div>
               <span className="eyebrow">Rede ativa</span>
-              <h2>Amigos aceitos</h2>
+              <h2>Conexões já confirmadas</h2>
               <p className="section-supporting-text">
-                Pessoas já conectadas à sua conta e disponíveis para consulta ou remoção.
+                Pessoas que já fazem parte da sua rede em uma visualização mais aberta e fácil de percorrer.
               </p>
             </div>
-            <StatusBadge tone="success">{friends.length} conexões</StatusBadge>
+            <StatusBadge tone="success">{friends.length} ativas</StatusBadge>
           </div>
 
-          <div className="friend-grid">
+          <div className="friend-grid friend-grid-spacious">
             {friends.length === 0 ? (
               <div className="empty-state empty-state-wide">
-                <strong>Sem amizades aceitas</strong>
-                <p>
-                  A tela de envio de convite fica oculta até que a API disponibilize
-                  uma forma melhor de descobrir usuários.
-                </p>
+                <strong>Sem conexões confirmadas</strong>
+                <p>Assim que houver amizades aceitas, elas serão exibidas aqui.</p>
               </div>
             ) : (
               friends.map((friend) => (
-                <article className="friend-card friend-card-tight" key={friend.id}>
+                <article className="friend-card friend-card-spacious" key={friend.id}>
                   <div className="friend-card-top">
                     <div className="avatar avatar-large">{getInitials(friend.name)}</div>
                     <div>
@@ -284,9 +295,10 @@ export function FriendsPage() {
                     </div>
                   </div>
 
-                  <p>Conexão ativa disponível para consulta e remoção pela interface.</p>
+                  <p>Conexão disponível para consulta e gestão dentro do seu espaço de trabalho.</p>
+
                   <div className="friend-card-actions">
-                    <StatusBadge tone="success">Aceita</StatusBadge>
+                    <StatusBadge tone="success">Ativa</StatusBadge>
                     <button className="soft-button soft-button-danger" type="button" onClick={() => handleRemove(friend)}>
                       <UserMinus size={16} />
                       Remover

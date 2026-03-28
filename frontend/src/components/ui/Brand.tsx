@@ -12,7 +12,12 @@ export function Brand({ compact = false }: BrandProps) {
         src={logo}
         alt="Logo da Avel"
       />
-      {!compact ? <span className="brand-caption">Planejamento claro para uma rotina que já acontece no mundo real.</span> : null}
+      {!compact ? (
+        <span className="brand-caption">
+          Organização clara para acompanhar tarefas, conexões e progresso com
+          tranquilidade.
+        </span>
+      ) : null}
     </div>
   );
 }

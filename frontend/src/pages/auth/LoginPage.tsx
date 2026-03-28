@@ -55,20 +55,21 @@ export function LoginPage() {
         <div className="auth-panel auth-panel-brand">
           <Brand />
           <span className="eyebrow">Entrar</span>
-          <h1>Entre e retome sua rotina com mais clareza.</h1>
+          <h1>Retome sua organização em um espaço mais claro e profissional.</h1>
           <p>
-            Acesse sua conta para acompanhar tarefas, conexões e o estado atual
-            da aplicação em uma interface mais organizada e menos improvisada.
+            Entre para acompanhar tarefas, conexões e andamento do seu dia em
+            uma experiência pensada para leitura calma, contexto visível e ação
+            direta.
           </p>
 
           <div className="auth-benefits">
             <article className="auth-benefit-card">
-              <strong>Fluxo objetivo</strong>
-              <p>Menos ruído visual, mais hierarquia e feedbacks mais claros durante o acesso.</p>
+              <strong>Menos ruído</strong>
+              <p>Layout mais espaçoso para você encontrar o que precisa sem esforço.</p>
             </article>
             <article className="auth-benefit-card">
-              <strong>Sessão persistida</strong>
-              <p>Autenticação real via cookie HTTP-only já suportada pela aplicação.</p>
+              <strong>Continuidade</strong>
+              <p>Sua conta permanece pronta para você voltar ao ponto em que parou.</p>
             </article>
           </div>
         </div>
@@ -77,7 +78,7 @@ export function LoginPage() {
           <div className="auth-form-header">
             <span className="eyebrow">Acesso</span>
             <h2>Entrar na sua conta</h2>
-            <p>Use o e-mail e a senha cadastrados para continuar de onde parou.</p>
+            <p>Use seu e-mail e senha para voltar ao seu espaço de trabalho.</p>
           </div>
 
           <form className="auth-form" onSubmit={handleSubmit}>
@@ -112,7 +113,7 @@ export function LoginPage() {
             {error ? <p className="form-feedback form-feedback-error">{error}</p> : null}
 
             <button className="primary-button auth-submit" disabled={isSubmitting} type="submit">
-              {isSubmitting ? "Entrando..." : "Entrar agora"}
+              {isSubmitting ? "Entrando..." : "Entrar"}
               <ArrowRight size={18} />
             </button>
           </form>

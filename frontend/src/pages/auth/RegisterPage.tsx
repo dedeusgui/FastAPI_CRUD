@@ -47,21 +47,22 @@ export function RegisterPage() {
       <section className="auth-shell">
         <div className="auth-panel auth-panel-brand">
           <Brand />
-          <span className="eyebrow">Cadastro</span>
-          <h1>Crie sua conta e comece com uma base mais sólida.</h1>
+          <span className="eyebrow">Criar conta</span>
+          <h1>Comece com uma base organizada para acompanhar sua rotina desde o primeiro dia.</h1>
           <p>
-            O cadastro conecta você ao fluxo real da aplicação e já inicia sua
-            sessão assim que os dados forem validados com sucesso.
+            Crie sua conta para acessar um espaço de trabalho mais limpo, com
+            prioridades visíveis, conexões organizadas e uma experiência de uso
+            pensada como produto.
           </p>
 
           <div className="auth-benefits">
             <article className="auth-benefit-card">
-              <strong>Entrada direta</strong>
-              <p>Cadastro e autenticação em sequência para reduzir atrito no primeiro acesso.</p>
+              <strong>Entrada simples</strong>
+              <p>Cadastro direto para você começar sem etapas desnecessárias.</p>
             </article>
             <article className="auth-benefit-card">
-              <strong>Base pronta</strong>
-              <p>Tarefas, amizades e dashboard passam a refletir o estado real da sua conta.</p>
+              <strong>Estrutura clara</strong>
+              <p>O painel já nasce pronto para acompanhar tarefas e conexões com contexto.</p>
             </article>
           </div>
         </div>
@@ -119,7 +120,7 @@ export function RegisterPage() {
             {error ? <p className="form-feedback form-feedback-error">{error}</p> : null}
 
             <button className="primary-button auth-submit" disabled={isSubmitting} type="submit">
-              {isSubmitting ? "Criando conta..." : "Criar conta e entrar"}
+              {isSubmitting ? "Criando conta..." : "Criar conta"}
               <ArrowRight size={18} />
             </button>
           </form>

@@ -11,8 +11,8 @@ import { useAuth } from "../../context/AuthContext";
 import { Brand } from "../ui/Brand";
 
 const navigation = [
-  { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { to: "/amigos", label: "Amigos", icon: Users },
+  { to: "/dashboard", label: "Painel", icon: LayoutDashboard },
+  { to: "/amigos", label: "Conexões", icon: Users },
   { to: "/tarefas", label: "Tarefas", icon: ListTodo },
 ];
 
@@ -24,8 +24,9 @@ export function AppShell() {
       <aside className="app-sidebar">
         <div className="sidebar-top">
           <Brand compact />
-          <div className="sidebar-user">
-            <span className="eyebrow">Sessão ativa</span>
+
+          <div className="sidebar-user sidebar-user-panel">
+            <span className="eyebrow">Conta ativa</span>
             <strong>{user?.name}</strong>
             <p>{user?.email}</p>
           </div>
@@ -49,17 +50,17 @@ export function AppShell() {
           ))}
         </nav>
 
-        <div className="sidebar-card">
+        <div className="sidebar-card sidebar-card-product">
           <div className="sidebar-card-header">
             <Sparkles size={16} />
-            <span>Resumo do produto</span>
+            <span>Navegação rápida</span>
           </div>
           <p>
-            A interface trabalha com a API real e prioriza leitura rápida,
-            feedback claro e menos atrito nas ações do dia a dia.
+            Painel, tarefas e conexões ficam sempre acessíveis, com o conteúdo
+            principal ocupando a maior parte da tela.
           </p>
           <Link className="ghost-button sidebar-link" to="/">
-            Ver landing pública
+            Ver apresentação
           </Link>
         </div>
       </aside>
