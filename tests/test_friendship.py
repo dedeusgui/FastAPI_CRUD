@@ -24,8 +24,7 @@ def test_send_friend_request_success(client, register_user, login_user):
     )
 
     response = client.post(
-        "/friends/request",
-        json={"requester_id": requester_id, "receiver_id": receiver_id},
+        f"/friends/request/{receiver_id}",
         cookies={"access_token": token_requester},
     )
 
@@ -47,9 +46,7 @@ def test_send_friend_request_to_self_returns_400(client, register_user, login_us
     )
 
     response = client.post(
-        "/friends/request",
-        json={"requester_id": user_id, "receiver_id": user_id},
-        cookies={"access_token": token},
+        f"/friends/request/{user_id}", cookies={"access_token": token}
     )
 
     assert response.status_code == 400
@@ -75,19 +72,37 @@ def test_send_duplicate_friend_request_returns_400(client, register_user, login_
     )
 
     client.post(
-        "/friends/request",
-        json={"requester_id": requester_id, "receiver_id": receiver_id},
-        cookies={"access_token": token_requester},
+        f"/friends/request/{receiver_id}", cookies={"access_token": token_requester}
     )
 
     response = client.post(
-        "/friends/request",
-        json={"requester_id": requester_id, "receiver_id": receiver_id},
+        f"/friends/request/{receiver_id}",
         cookies={"access_token": token_requester},
     )
 
     assert response.status_code == 400
     assert response.json() == {"detail": "Friend request already exists."}
+
+
+def test_send_friend_request_nonexistent_user_returns_404(
+    client, register_user, login_user
+):
+    token_requester, _ = _create_and_login(
+        client,
+        register_user,
+        login_user,
+        name="Requester",
+        email="requester@example.com",
+        password="testpassword",
+    )
+
+    response = client.post(
+        "/friends/request/999",
+        cookies={"access_token": token_requester},
+    )
+
+    assert response.status_code == 404
+    assert response.json() == {"detail": "Friend user not found."}
 
 
 def test_accept_friend_request_success(client, register_user, login_user):
@@ -109,14 +124,11 @@ def test_accept_friend_request_success(client, register_user, login_user):
     )
 
     client.post(
-        "/friends/request",
-        json={"requester_id": requester_id, "receiver_id": receiver_id},
-        cookies={"access_token": token_requester},
+        f"/friends/request/{receiver_id}", cookies={"access_token": token_requester}
     )
 
     response = client.post(
-        "/friends/accept",
-        json={"requester_id": requester_id, "receiver_id": receiver_id},
+        f"/friends/accept/{requester_id}",
         cookies={"access_token": token_receiver},
     )
 
@@ -143,14 +155,11 @@ def test_accept_own_request_returns_400(client, register_user, login_user):
     )
 
     client.post(
-        "/friends/request",
-        json={"requester_id": requester_id, "receiver_id": receiver_id},
-        cookies={"access_token": token_requester},
+        f"/friends/request/{receiver_id}", cookies={"access_token": token_requester}
     )
 
     response = client.post(
-        "/friends/accept",
-        json={"requester_id": requester_id, "receiver_id": receiver_id},
+        f"/friends/accept/{requester_id}",
         cookies={"access_token": token_requester},
     )
 
@@ -169,8 +178,7 @@ def test_accept_nonexistent_request_returns_404(client, register_user, login_use
     )
 
     response = client.post(
-        "/friends/accept",
-        json={"requester_id": 999, "receiver_id": receiver_id},
+        "/friends/accept/999",
         cookies={"access_token": token_receiver},
     )
 
@@ -197,14 +205,11 @@ def test_refuse_friend_request_success(client, register_user, login_user):
     )
 
     client.post(
-        "/friends/request",
-        json={"requester_id": requester_id, "receiver_id": receiver_id},
-        cookies={"access_token": token_requester},
+        f"/friends/request/{receiver_id}", cookies={"access_token": token_requester}
     )
 
     response = client.post(
-        "/friends/refuse",
-        json={"requester_id": requester_id, "receiver_id": receiver_id},
+        f"/friends/refuse/{requester_id}",
         cookies={"access_token": token_receiver},
     )
 
@@ -231,14 +236,11 @@ def test_refuse_own_request_returns_400(client, register_user, login_user):
     )
 
     client.post(
-        "/friends/request",
-        json={"requester_id": requester_id, "receiver_id": receiver_id},
-        cookies={"access_token": token_requester},
+        f"/friends/request/{receiver_id}", cookies={"access_token": token_requester}
     )
 
     response = client.post(
-        "/friends/refuse",
-        json={"requester_id": requester_id, "receiver_id": receiver_id},
+        f"/friends/refuse/{requester_id}",
         cookies={"access_token": token_requester},
     )
 
@@ -265,9 +267,7 @@ def test_status_returns_pending_and_accepted(client, register_user, login_user):
     )
 
     client.post(
-        "/friends/request",
-        json={"requester_id": requester_id, "receiver_id": receiver_id},
-        cookies={"access_token": token_requester},
+        f"/friends/request/{receiver_id}", cookies={"access_token": token_requester}
     )
 
     pending_status = client.get(
@@ -276,9 +276,7 @@ def test_status_returns_pending_and_accepted(client, register_user, login_user):
     )
 
     client.post(
-        "/friends/accept",
-        json={"requester_id": requester_id, "receiver_id": receiver_id},
-        cookies={"access_token": token_receiver},
+        f"/friends/accept/{requester_id}", cookies={"access_token": token_receiver}
     )
 
     accepted_status = client.get(
@@ -292,7 +290,7 @@ def test_status_returns_pending_and_accepted(client, register_user, login_user):
     assert accepted_status.json() == "accepted"
 
 
-def test_get_pending_requests_only_for_authenticated_user(
+def test_get_pending_requests_returns_only_user_pending(
     client, register_user, login_user
 ):
     token_requester, requester_id = _create_and_login(
@@ -311,7 +309,7 @@ def test_get_pending_requests_only_for_authenticated_user(
         email="receiver@example.com",
         password="testpassword",
     )
-    token_other, other_id = _create_and_login(
+    token_other, _ = _create_and_login(
         client,
         register_user,
         login_user,
@@ -321,28 +319,25 @@ def test_get_pending_requests_only_for_authenticated_user(
     )
 
     client.post(
-        "/friends/request",
-        json={"requester_id": requester_id, "receiver_id": receiver_id},
-        cookies={"access_token": token_requester},
+        f"/friends/request/{receiver_id}", cookies={"access_token": token_requester}
     )
 
     own_pending = client.get(
-        f"/friends/pending-requests/{receiver_id}",
+        "/friends/pending-requests",
         cookies={"access_token": token_receiver},
     )
-    forbidden_pending = client.get(
-        f"/friends/pending-requests/{receiver_id}",
+    other_pending = client.get(
+        "/friends/pending-requests",
         cookies={"access_token": token_other},
     )
 
     assert own_pending.status_code == 200
     assert len(own_pending.json()) == 1
+    assert "id" in own_pending.json()[0]
+    assert own_pending.json()[0]["status"] == "pending"
     assert own_pending.json()[0]["requester_id"] == requester_id
-    assert forbidden_pending.status_code == 403
-    assert forbidden_pending.json() == {
-        "detail": "You can only view your own pending requests."
-    }
-    assert other_id != receiver_id
+    assert other_pending.status_code == 200
+    assert other_pending.json() == []
 
 
 def test_remove_friendship_success_and_forbidden(client, register_user, login_user):
@@ -372,22 +367,18 @@ def test_remove_friendship_success_and_forbidden(client, register_user, login_us
     )
 
     client.post(
-        "/friends/request",
-        json={"requester_id": requester_id, "receiver_id": receiver_id},
-        cookies={"access_token": token_requester},
+        f"/friends/request/{receiver_id}", cookies={"access_token": token_requester}
     )
 
     forbidden_remove = client.request(
         "DELETE",
-        "/friends/remove",
-        json={"requester_id": requester_id, "receiver_id": receiver_id},
+        f"/friends/remove/{requester_id}",
         cookies={"access_token": token_other},
     )
 
     success_remove = client.request(
         "DELETE",
-        "/friends/remove",
-        json={"requester_id": requester_id, "receiver_id": receiver_id},
+        f"/friends/remove/{requester_id}",
         cookies={"access_token": token_receiver},
     )
 
@@ -396,10 +387,8 @@ def test_remove_friendship_success_and_forbidden(client, register_user, login_us
         cookies={"access_token": token_requester},
     )
 
-    assert forbidden_remove.status_code == 403
-    assert forbidden_remove.json() == {
-        "detail": "You can only remove friendships you are part of."
-    }
+    assert forbidden_remove.status_code == 404
+    assert forbidden_remove.json() == {"detail": "Friendship not found."}
     assert success_remove.status_code == 204
     assert status_after_remove.status_code == 404
     assert status_after_remove.json() == {"detail": "Friendship not found."}
@@ -459,32 +448,26 @@ def test_get_friends_returns_only_accepted_friends(client, register_user, login_
     )
 
     client.post(
-        "/friends/request",
-        json={"requester_id": requester_id, "receiver_id": receiver_id},
-        cookies={"access_token": token_requester},
+        f"/friends/request/{receiver_id}", cookies={"access_token": token_requester}
     )
     client.post(
-        "/friends/accept",
-        json={"requester_id": requester_id, "receiver_id": receiver_id},
-        cookies={"access_token": token_receiver},
+        f"/friends/accept/{requester_id}", cookies={"access_token": token_receiver}
     )
 
     client.post(
-        "/friends/request",
-        json={"requester_id": other_id, "receiver_id": requester_id},
-        cookies={"access_token": token_other},
+        f"/friends/request/{requester_id}", cookies={"access_token": token_other}
     )
 
-    response = client.get(
-        f"/friends/{requester_id}", cookies={"access_token": token_requester}
-    )
+    response = client.get("/friends", cookies={"access_token": token_requester})
 
     assert response.status_code == 200
     assert len(response.json()) == 1
     assert response.json()[0]["id"] == receiver_id
 
 
-def test_get_friends_user_not_found_returns_404(client, register_user, login_user):
+def test_get_friends_without_relationships_returns_empty_list(
+    client, register_user, login_user
+):
     token, _ = _create_and_login(
         client,
         register_user,
@@ -494,7 +477,7 @@ def test_get_friends_user_not_found_returns_404(client, register_user, login_use
         password="testpassword",
     )
 
-    response = client.get("/friends/999", cookies={"access_token": token})
+    response = client.get("/friends", cookies={"access_token": token})
 
-    assert response.status_code == 404
-    assert response.json() == {"detail": "User not found or no friends."}
+    assert response.status_code == 200
+    assert response.json() == []

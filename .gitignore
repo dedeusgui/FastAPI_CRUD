@@ -5,8 +5,19 @@ build/
 dist/
 wheels/
 *.egg-info
+.pytest_cache/
+
+# Environment files
+.env
+.env.*
+!.env.example
 
 # Virtual environments
 .venv
 
+# Front-end
+node_modules
+*.tsbuildinfo
+
+# Local editor/project files
 .vscode

@@ -24,4 +24,4 @@ Projeto de portfolio com uma API REST construída em FastAPI. A aplicação cobr
 
 ## Observação
 
-O projeto possui uma pasta `frontend`, mas a documentação atual cobre apenas o back-end, que é a parte implementada e testada neste momento.
+O projeto agora possui um frontend em `frontend/`, pensado como vitrine funcional do produto. A documentação em `docs/` continua mais focada no back-end e nas regras já consolidadas da API.

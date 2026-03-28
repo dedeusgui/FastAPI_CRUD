@@ -50,5 +50,5 @@ Esse fluxo reduz acoplamento entre endpoint e persistência e deixa as regras de
 
 ## Escopo atual
 
-- A documentação atual cobre o back-end da aplicação.
-- A pasta `frontend` existe, mas ainda não define uma implementação relevante para documentação funcional.
+- O back-end continua sendo a base principal da aplicação.
+- O frontend agora existe como camada de apresentação do produto, com navegação própria e dados locais para demonstrar a experiência visual sem exigir novas mudanças na API.

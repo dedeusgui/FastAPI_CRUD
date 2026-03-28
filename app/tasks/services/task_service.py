@@ -11,8 +11,9 @@ class TaskService:
         self.user_service = user_service
 
     def create_task(self, title: str, description: str | None, user_id: int) -> None:
-        user = self.user_service.get_user_by_id(user_id)
-        if user is None:
+        try:
+            self.user_service.get_user_by_id(user_id)
+        except ValueError:
             raise HTTPException(status_code=404, detail="User not found")
         task = Task(title=title, description=description, user_id=user_id)
 

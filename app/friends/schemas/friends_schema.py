@@ -10,15 +10,17 @@ class FriendshipStatus(str, Enum):
 
 class FriendshipBase(BaseModel):
     requester_id: int = Field(
-        ..., description="ID of the user sending the friend request"
+        ..., description="ID of the user who sent the friend request"
     )
     receiver_id: int = Field(
-        ..., description="ID of the user receiving the friend request"
+        ..., description="ID of the user who received the friend request"
     )
 
 
 class FriendshipResponse(FriendshipBase):
-    id: int
-    status: FriendshipStatus
+    id: int = Field(..., description="Unique friendship relation ID")
+    status: FriendshipStatus = Field(
+        ..., description="Current status of the friendship"
+    )
 
     model_config = {"from_attributes": True}

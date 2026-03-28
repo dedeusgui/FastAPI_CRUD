@@ -1,3 +1,4 @@
+import os
 from datetime import datetime
 
 from app.user.schemas.user import UserCreate, UserLogin
@@ -14,6 +15,8 @@ from app.auth.dependencies.auth_dependencies import (
 )
 
 router = APIRouter(prefix="/users", tags=["users"])
+
+COOKIE_SECURE = os.getenv("COOKIE_SECURE", "false").lower() == "true"
 
 
 @router.post("/register")
@@ -45,7 +48,7 @@ def login_user(
         value=token,
         max_age=max_age,
         httponly=True,
-        secure=False,
+        secure=COOKIE_SECURE,
         samesite="lax",
     )
 
