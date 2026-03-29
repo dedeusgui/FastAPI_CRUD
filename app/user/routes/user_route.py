@@ -1,4 +1,4 @@
-import os
+from config.config import settings
 
 from app.user.schemas.user import UserCreate, UserLogin
 from app.auth.services.auth_service import AuthService
@@ -19,8 +19,8 @@ from app.auth.dependencies.auth_dependencies import (
 
 router = APIRouter(prefix="/users", tags=["users"])
 
-COOKIE_SECURE = os.getenv("COOKIE_SECURE", "false").lower() == "true"
-SESSION_HOURS = int(os.getenv("SESSION_HOURS", "1"))
+COOKIE_SECURE = settings.cookie_secure
+SESSION_HOURS = settings.session_hours
 
 
 @router.post("/register")
