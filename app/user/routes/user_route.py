@@ -1,12 +1,15 @@
 import os
-from datetime import datetime
 
 from app.user.schemas.user import UserCreate, UserLogin
 from app.auth.services.auth_service import AuthService
 from app.auth.services.session_service import SessionService
-from app.auth.utils.security import create_session_expires_at, create_session_token
+from app.auth.utils.security import (
+    create_max_age,
+    create_session_expires_at,
+    create_session_token,
+)
 from app.user.services.user_service import UserService
-from fastapi import APIRouter, Depends, HTTPException, Response
+from fastapi import APIRouter, Depends, HTTPException, Request, Response
 from app.user.dependencies.user_dependencies import get_user_service
 from app.auth.dependencies.auth_dependencies import (
     get_auth_service,
@@ -17,6 +20,7 @@ from app.auth.dependencies.auth_dependencies import (
 router = APIRouter(prefix="/users", tags=["users"])
 
 COOKIE_SECURE = os.getenv("COOKIE_SECURE", "false").lower() == "true"
+SESSION_HOURS = int(os.getenv("SESSION_HOURS", "1"))
 
 
 @router.post("/register")
@@ -39,10 +43,11 @@ def login_user(
 ):
     auth_user = auth_service.authenticate_user(user.email, user.password)
     token = create_session_token()
-    expires_at = create_session_expires_at(hours=1)
+    expires_at = create_session_expires_at(hours=SESSION_HOURS)
+
     session_service.create_session(auth_user.id, token, expires_at)
 
-    max_age = max(0, int((expires_at - datetime.now()).total_seconds()))
+    max_age = create_max_age(hours=SESSION_HOURS)
     response.set_cookie(
         key="access_token",
         value=token,
@@ -66,10 +71,13 @@ def get_me(current_user=Depends(get_current_user)):
 
 @router.post("/logout")
 def logout_user(
+    request: Request,
     response: Response,
     session_service: SessionService = Depends(get_session_service),
     current_user=Depends(get_current_user),
 ):
-    session_service.delete_sessions_by_user_id(current_user.id)
+    actual_session = request.cookies.get("access_token")
+    if actual_session:
+        session_service.delete_session(actual_session)
     response.delete_cookie(key="access_token")
     return {"message": "Logout successful"}

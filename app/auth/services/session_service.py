@@ -31,5 +31,8 @@ class SessionService:
         if session:
             self.session_repository.revoke_session(session)
 
-    def delete_sessions_by_user_id(self, user_id: int):
-        self.session_repository.delete_sessions_by_user_id(user_id)
+    def get_sessions_by_user_id(self, user_id: int):
+        sessions = self.session_repository.get_sessions_by_user_id(user_id)
+        if sessions:
+            return sessions
+        return []

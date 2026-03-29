@@ -5,6 +5,9 @@ import secrets
 from datetime import datetime, timedelta
 
 
+DEFAULT_SESSION_HOURS = 1
+
+
 def hash_password(password: str) -> str:
     salt = bcrypt.gensalt()
     hashed = bcrypt.hashpw(password.encode("utf-8"), salt)
@@ -28,5 +31,13 @@ def create_session_token() -> str:
     return secrets.token_urlsafe(48)
 
 
-def create_session_expires_at(hours: int = 1) -> datetime:
-    return datetime.now() + timedelta(hours=hours)
+def create_ttl(hours: int = DEFAULT_SESSION_HOURS) -> int:
+    return int(timedelta(hours=hours).total_seconds())
+
+
+def create_session_expires_at(hours: int = DEFAULT_SESSION_HOURS) -> datetime:
+    return datetime.now() + timedelta(seconds=create_ttl(hours))
+
+
+def create_max_age(hours: int = DEFAULT_SESSION_HOURS) -> int:
+    return create_ttl(hours)

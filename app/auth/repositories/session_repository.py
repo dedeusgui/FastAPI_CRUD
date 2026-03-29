@@ -42,6 +42,5 @@ class SessionRepository:
         session.revoked = True
         self.db.commit()
 
-    def delete_sessions_by_user_id(self, user_id: int) -> None:
-        self.db.query(Session).filter(Session.user_id == user_id).delete()
-        self.db.commit()
+    def get_sessions_by_user_id(self, user_id: int):
+        return self.db.query(Session).filter(Session.user_id == user_id).all()
