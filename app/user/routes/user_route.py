@@ -62,3 +62,14 @@ def get_me(current_user=Depends(get_current_user)):
         "name": current_user.name,
         "email": current_user.email,
     }
+
+
+@router.post("/logout")
+def logout_user(
+    response: Response,
+    session_service: SessionService = Depends(get_session_service),
+    current_user=Depends(get_current_user),
+):
+    session_service.delete_sessions_by_user_id(current_user.id)
+    response.delete_cookie(key="access_token")
+    return {"message": "Logout successful"}

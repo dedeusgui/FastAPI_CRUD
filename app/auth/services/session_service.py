@@ -30,3 +30,6 @@ class SessionService:
         session = self.get_session_by_token(token)
         if session:
             self.session_repository.revoke_session(session)
+
+    def delete_sessions_by_user_id(self, user_id: int):
+        self.session_repository.delete_sessions_by_user_id(user_id)
