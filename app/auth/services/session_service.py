@@ -4,7 +4,7 @@ from app.auth.models.session import Session
 from app.auth.repositories.session_repository import (
     SessionRepository,
 )
-from app.auth.utils.security import hash_token, verify_token
+from app.auth.utils.security import hash_token
 
 
 class SessionService:
@@ -21,18 +21,7 @@ class SessionService:
             hashed_token, datetime.now()
         )
 
-    def delete_session(self, token: str):
-        session = self.get_session_by_token(token)
-        if session:
-            self.session_repository.delete_session(session)
-
     def revoke_session(self, token: str):
         session = self.get_session_by_token(token)
         if session:
             self.session_repository.revoke_session(session)
-
-    def get_sessions_by_user_id(self, user_id: int):
-        sessions = self.session_repository.get_sessions_by_user_id(user_id)
-        if sessions:
-            return sessions
-        return []

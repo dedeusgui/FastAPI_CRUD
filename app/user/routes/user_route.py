@@ -78,6 +78,6 @@ def logout_user(
 ):
     actual_session = request.cookies.get("access_token")
     if actual_session:
-        session_service.delete_session(actual_session)
+        session_service.revoke_session(actual_session)
     response.delete_cookie(key="access_token")
     return {"message": "Logout successful"}

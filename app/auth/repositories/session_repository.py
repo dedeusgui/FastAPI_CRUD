@@ -34,13 +34,6 @@ class SessionRepository:
             .first()
         )
 
-    def delete_session(self, session: Session) -> None:
-        self.db.delete(session)
-        self.db.commit()
-
     def revoke_session(self, session: Session) -> None:
         session.revoked = True
         self.db.commit()
-
-    def get_sessions_by_user_id(self, user_id: int):
-        return self.db.query(Session).filter(Session.user_id == user_id).all()

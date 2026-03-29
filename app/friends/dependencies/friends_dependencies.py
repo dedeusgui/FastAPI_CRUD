@@ -12,4 +12,4 @@ def get_friend_repository(db: Session = Depends(get_db)) -> FriendRepository:
 def get_friend_service(
     friend_repository: FriendRepository = Depends(get_friend_repository),
 ) -> FriendService:
-    return FriendService(friend_repository.db)
+    return FriendService(friend_repository)

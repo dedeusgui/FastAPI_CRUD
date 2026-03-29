@@ -1,6 +1,5 @@
 import bcrypt
 import hashlib
-import hmac
 import secrets
 from datetime import datetime, timedelta
 
@@ -16,11 +15,6 @@ def hash_password(password: str) -> str:
 
 def hash_token(token: str) -> str:
     return hashlib.sha256(token.encode("utf-8")).hexdigest()
-
-
-def verify_token(token: str, hashed_token: str) -> bool:
-    token_hash = hash_token(token)
-    return hmac.compare_digest(token_hash, hashed_token)
 
 
 def verify_password(password: str, hashed_password: str) -> bool:

@@ -15,20 +15,6 @@ class UserRepository:
         self.db.refresh(user)
         return user
 
-    def delete_user(self, id: int) -> None:
-        user = self.get_user_by_id(id)
-        if user:
-            self.db.delete(user)
-            self.db.commit()
-
-    def update_user(self, id: int, user: User) -> None:
-        db_user = self.get_user_by_id(id)
-        if db_user:
-            db_user.name = user.name
-            db_user.email = user.email
-
-            self.db.commit()
-
     def get_user_by_id(self, id: int) -> User | None:
         return self.db.query(User).filter(User.id == id).first()
 

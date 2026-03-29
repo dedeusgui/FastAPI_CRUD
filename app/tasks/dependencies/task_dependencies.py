@@ -2,7 +2,7 @@ from app.tasks.repositories.task_repository import TaskRepository
 from app.user.dependencies.user_dependencies import get_user_service
 from app.user.services.user_service import UserService
 from app.tasks.services.task_service import TaskService
-from fastapi import Depends, HTTPException
+from fastapi import Depends
 from config.database import get_db
 from sqlalchemy.orm import Session
 
