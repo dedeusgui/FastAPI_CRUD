@@ -14,8 +14,7 @@ export function Brand({ compact = false }: BrandProps) {
       />
       {!compact ? (
         <span className="brand-caption">
-          Organização clara para acompanhar tarefas, conexões e progresso com
-          tranquilidade.
+          Organize tarefas, prioridades e conexões em um só lugar.
         </span>
       ) : null}
     </div>

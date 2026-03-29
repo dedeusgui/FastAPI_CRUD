@@ -1,13 +1,8 @@
 import { apiRequest, ApiError } from "../api/client";
 import type { FriendItem, PendingFriendRequest } from "../../types/app";
 
-interface FriendshipPayload {
-  requester_id: number;
-  receiver_id: number;
-}
-
-export function getFriends(userId: number) {
-  return apiRequest<FriendItem[]>(`/friends/${userId}`).catch((error) => {
+export function getFriends() {
+  return apiRequest<FriendItem[]>("/friends").catch((error) => {
     if (error instanceof ApiError && error.status === 404) {
       return [];
     }
@@ -16,45 +11,30 @@ export function getFriends(userId: number) {
   });
 }
 
-export function getPendingFriendRequests(userId: number) {
-  return apiRequest<PendingFriendRequest[]>(`/friends/pending-requests/${userId}`);
+export function getPendingFriendRequests() {
+  return apiRequest<PendingFriendRequest[]>("/friends/pending-requests");
 }
 
-export function acceptFriendRequest(payload: FriendshipPayload) {
-  return apiRequest<PendingFriendRequest>("/friends/accept", {
+export function sendFriendRequest(friendId: number) {
+  return apiRequest<PendingFriendRequest>(`/friends/request/${friendId}`, {
     method: "POST",
-    body: JSON.stringify(payload),
   });
 }
 
-export function refuseFriendRequest(payload: FriendshipPayload) {
-  return apiRequest<PendingFriendRequest>("/friends/refuse", {
+export function acceptFriendRequest(friendId: number) {
+  return apiRequest<PendingFriendRequest>(`/friends/accept/${friendId}`, {
     method: "POST",
-    body: JSON.stringify(payload),
   });
 }
 
-async function removeFriendshipPair(payload: FriendshipPayload) {
-  return apiRequest<void>("/friends/remove", {
+export function refuseFriendRequest(friendId: number) {
+  return apiRequest<PendingFriendRequest>(`/friends/refuse/${friendId}`, {
+    method: "POST",
+  });
+}
+
+export function removeFriendship(friendId: number) {
+  return apiRequest<void>(`/friends/remove/${friendId}`, {
     method: "DELETE",
-    body: JSON.stringify(payload),
   });
-}
-
-export async function removeFriendship(currentUserId: number, friendId: number) {
-  try {
-    await removeFriendshipPair({
-      requester_id: currentUserId,
-      receiver_id: friendId,
-    });
-  } catch (error) {
-    if (!(error instanceof ApiError) || error.status !== 404) {
-      throw error;
-    }
-
-    await removeFriendshipPair({
-      requester_id: friendId,
-      receiver_id: currentUserId,
-    });
-  }
 }

@@ -55,21 +55,20 @@ export function LoginPage() {
         <div className="auth-panel auth-panel-brand">
           <Brand />
           <span className="eyebrow">Entrar</span>
-          <h1>Retome sua organização em um espaço mais claro e profissional.</h1>
+          <h1>Volte para sua rotina em um só lugar.</h1>
           <p>
-            Entre para acompanhar tarefas, conexões e andamento do seu dia em
-            uma experiência pensada para leitura calma, contexto visível e ação
-            direta.
+            Entre para acompanhar tarefas, convites pendentes e o andamento da
+            sua conta sem perder o contexto.
           </p>
 
           <div className="auth-benefits">
             <article className="auth-benefit-card">
-              <strong>Menos ruído</strong>
-              <p>Layout mais espaçoso para você encontrar o que precisa sem esforço.</p>
+              <strong>Painel do dia</strong>
+              <p>Retome o que está aberto assim que a sessão for validada.</p>
             </article>
             <article className="auth-benefit-card">
-              <strong>Continuidade</strong>
-              <p>Sua conta permanece pronta para você voltar ao ponto em que parou.</p>
+              <strong>Fluxo contínuo</strong>
+              <p>Login simples para continuar trabalhando sem etapas extras.</p>
             </article>
           </div>
         </div>
@@ -78,7 +77,7 @@ export function LoginPage() {
           <div className="auth-form-header">
             <span className="eyebrow">Acesso</span>
             <h2>Entrar na sua conta</h2>
-            <p>Use seu e-mail e senha para voltar ao seu espaço de trabalho.</p>
+            <p>Use seu e-mail e senha para voltar ao painel da Avel.</p>
           </div>
 
           <form className="auth-form" onSubmit={handleSubmit}>

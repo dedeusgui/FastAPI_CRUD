@@ -113,6 +113,10 @@ export function TasksPage() {
     }
     return true;
   });
+  const orderedVisibleTasks = [...visibleTasks].sort(
+    (left, right) =>
+      Number(left.completed) - Number(right.completed) || right.id - left.id,
+  );
 
   const completedTasks = tasks.filter((task) => task.completed).length;
   const pendingTasks = tasks.length - completedTasks;
@@ -232,7 +236,7 @@ export function TasksPage() {
         <section className="surface-card loading-card">
           <span className="eyebrow">Tarefas</span>
           <h1>Carregando sua lista</h1>
-          <p>Preparando a visão atual das suas tarefas.</p>
+          <p>Buscando as tarefas registradas na sua conta.</p>
         </section>
       </div>
     );
@@ -243,11 +247,10 @@ export function TasksPage() {
       <section className="page-hero-card">
         <div className="page-hero-copy">
           <span className="eyebrow">Tarefas</span>
-          <h1>Organize o que precisa acontecer com espaço para pensar.</h1>
+          <h1>Sua lista de execução.</h1>
           <p>
-            Acompanhe sua lista, filtre rapidamente e ajuste cada item sem se
-            perder em um layout apertado. O foco aqui é manter contexto e
-            fluidez na execução.
+            Crie tarefas, acompanhe pendências e ajuste detalhes sem perder o
+            ritmo do que precisa ser feito.
           </p>
         </div>
 
@@ -277,9 +280,9 @@ export function TasksPage() {
           <div className="section-heading section-heading-spacious">
             <div>
               <span className="eyebrow">Nova tarefa</span>
-              <h2>Registrar um novo item</h2>
+              <h2>Criar uma nova tarefa</h2>
               <p className="section-supporting-text">
-                Descreva o essencial agora. Se precisar, você pode refinar depois.
+                Registre o essencial agora e refine o contexto depois, se precisar.
               </p>
             </div>
           </div>
@@ -320,9 +323,9 @@ export function TasksPage() {
           <div className="section-heading section-heading-spacious">
             <div>
               <span className="eyebrow">Visualização</span>
-              <h2>Encontre rapidamente o que importa</h2>
+              <h2>Filtre sua lista</h2>
               <p className="section-supporting-text">
-                Alterne entre pendências e concluídas para limpar a leitura da lista.
+                Alterne entre pendentes e concluídas para enxergar só o que importa agora.
               </p>
             </div>
           </div>
@@ -348,21 +351,21 @@ export function TasksPage() {
         <div className="section-heading section-heading-spacious">
           <div>
             <span className="eyebrow">Lista atual</span>
-            <h2>Sua rotina, item por item</h2>
+            <h2>Tarefas registradas</h2>
             <p className="section-supporting-text">
-              Cada tarefa foi organizada para caber com folga, deixar o status visível e permitir ação rápida.
+              Cada item mostra status, descrição e ações principais para você resolver a lista sem fricção.
             </p>
           </div>
         </div>
 
         <div className="stack-list stack-list-spacious">
-          {visibleTasks.length === 0 ? (
+          {orderedVisibleTasks.length === 0 ? (
             <div className="empty-state">
               <strong>Nenhuma tarefa neste filtro</strong>
-              <p>Crie uma nova tarefa ou altere o filtro para visualizar outros itens.</p>
+              <p>Crie uma tarefa nova ou troque o filtro para visualizar outros itens.</p>
             </div>
           ) : (
-            visibleTasks.map((task) => (
+            orderedVisibleTasks.map((task) => (
               <article className="task-card task-card-spacious" key={task.id}>
                 <div
                   className={task.completed ? "task-toggle task-toggle-done" : "task-toggle"}
@@ -374,7 +377,7 @@ export function TasksPage() {
                   <div className="task-title-row task-title-row-spacious">
                     <div>
                       <strong>{task.title}</strong>
-                      <p>{task.description ?? "Sem descrição adicional informada."}</p>
+                      <p>{task.description ?? "Sem contexto adicional informado."}</p>
                     </div>
                     <div className="row-meta">
                       <StatusBadge tone={task.completed ? "success" : "warning"}>
@@ -426,7 +429,7 @@ export function TasksPage() {
                       {!task.completed ? (
                         <button className="soft-button" type="button" onClick={() => handleCompleteTask(task.id)}>
                           <Check size={16} />
-                          Concluir
+                          Marcar como concluída
                         </button>
                       ) : null}
                       <button className="soft-button" type="button" onClick={() => startEditing(task)}>

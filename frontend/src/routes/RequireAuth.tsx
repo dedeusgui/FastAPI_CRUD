@@ -12,7 +12,7 @@ export function RequireAuth() {
         <div className="auth-gate-card">
           <span className="eyebrow">Avel</span>
           <h1>Carregando sua sessão</h1>
-          <p>Estamos verificando o acesso antes de abrir a área autenticada.</p>
+          <p>Validando seu acesso antes de abrir a área autenticada.</p>
         </div>
       </div>
     );

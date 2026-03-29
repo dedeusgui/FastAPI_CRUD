@@ -53,14 +53,14 @@ export function AppShell() {
         <div className="sidebar-card sidebar-card-product">
           <div className="sidebar-card-header">
             <Sparkles size={16} />
-            <span>Navegação rápida</span>
+            <span>MVP em produção</span>
           </div>
           <p>
-            Painel, tarefas e conexões ficam sempre acessíveis, com o conteúdo
-            principal ocupando a maior parte da tela.
+            Avel já roda sobre autenticação, tarefas e conexões reais. O foco
+            agora é validar o uso diário com uma interface simples e confiável.
           </p>
           <Link className="ghost-button sidebar-link" to="/">
-            Ver apresentação
+            Ver a proposta
           </Link>
         </div>
       </aside>

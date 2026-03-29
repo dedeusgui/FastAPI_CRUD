@@ -28,4 +28,5 @@
 - `ARCHITECTURE.MD` descreve a visão estrutural da aplicação.
 - `BUSINESS_RULES.MD` registra apenas regras realmente implementadas.
 - `README.md` funciona como porta de entrada curta do projeto.
+- `FRONTEND_STANDARDS.MD` define padrões visuais, convenções de código e limites do frontend.
 - Documentação deve ser curta, objetiva e compatível com o tamanho do projeto.

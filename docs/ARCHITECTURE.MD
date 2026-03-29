@@ -52,3 +52,9 @@ Esse fluxo reduz acoplamento entre endpoint e persistência e deixa as regras de
 
 - O back-end continua sendo a base principal da aplicação.
 - O frontend agora existe como camada de apresentação do produto, com navegação própria e dados locais para demonstrar a experiência visual sem exigir novas mudanças na API.
+
+## Diretrizes do frontend
+
+- O frontend possui um documento próprio de padronização em [FRONTEND_STANDARDS.MD](FRONTEND_STANDARDS.MD).
+- Esse documento define padrões visuais, convenções de código e limites explícitos entre frontend e backend.
+- A arquitetura deste arquivo continua focada na estrutura geral do projeto e no backend.

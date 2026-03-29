@@ -50,8 +50,8 @@ export function DashboardPage() {
       try {
         const [taskList, friendList, pendingList] = await Promise.all([
           getTasks(),
-          getFriends(user.id),
-          getPendingFriendRequests(user.id),
+          getFriends(),
+          getPendingFriendRequests(),
         ]);
 
         if (!active) {
@@ -94,35 +94,36 @@ export function DashboardPage() {
   const completedTasks = tasks.filter((task) => task.completed).length;
   const pendingTasks = tasks.length - completedTasks;
   const tasksToShow = [...tasks].sort(
-    (left, right) => Number(left.completed) - Number(right.completed),
+    (left, right) =>
+      Number(left.completed) - Number(right.completed) || right.id - left.id,
   );
 
   const metrics = [
     {
       label: "Total de tarefas",
       value: tasks.length,
-      note: "Tudo o que está registrado na sua rotina.",
+      note: "Tudo o que já foi registrado na sua rotina.",
       icon: metricIcons.total,
       accent: "icon-blue",
     },
     {
       label: "Concluídas",
       value: completedTasks,
-      note: "Itens que já avançaram até o fim.",
+      note: "Itens que já saíram da sua fila.",
       icon: metricIcons.done,
       accent: "icon-green",
     },
     {
       label: "Pendentes",
       value: pendingTasks,
-      note: "O que ainda merece sua atenção.",
+      note: "O que ainda pede ação hoje.",
       icon: metricIcons.pending,
       accent: "icon-amber",
     },
     {
       label: "Conexões ativas",
       value: friends.length,
-      note: "Pessoas já confirmadas na sua rede.",
+      note: "Contatos aceitos dentro da sua conta.",
       icon: metricIcons.friends,
       accent: "icon-rose",
     },
@@ -133,8 +134,8 @@ export function DashboardPage() {
       <div className="page-stack">
         <section className="surface-card loading-card">
           <span className="eyebrow">Painel</span>
-          <h1>Preparando sua visão do dia</h1>
-          <p>Carregando tarefas, conexões e pendências da sua conta.</p>
+          <h1>Carregando sua área de trabalho</h1>
+          <p>Buscando tarefas, conexões e pendências da sua conta.</p>
         </section>
       </div>
     );
@@ -145,18 +146,17 @@ export function DashboardPage() {
       <section className="page-hero-card">
         <div className="page-hero-copy">
           <span className="eyebrow">Painel</span>
-          <h1>Um resumo claro para retomar sua rotina com contexto.</h1>
+          <h1>Seu espaço de trabalho para hoje.</h1>
           <p>
-            Veja o que está em andamento, o que já foi resolvido e quais
-            relações ainda precisam de resposta. Tudo em uma leitura mais leve,
-            com espaço para entender antes de agir.
+            Acompanhe tarefas pendentes, convites recebidos e o status da sua
+            conta sem trocar de tela.
           </p>
         </div>
 
         <div className="page-hero-aside page-hero-stats">
           <div className="header-chip header-chip-spacious">
             <ChartNoAxesCombined size={18} />
-            <span>{pendingTasks} prioridades em aberto</span>
+            <span>{pendingTasks} itens pedindo ação</span>
           </div>
           <div className="hero-account-card">
             <div className="avatar avatar-xl">{getInitials(user?.name ?? "Avel")}</div>
@@ -190,10 +190,9 @@ export function DashboardPage() {
           <div className="section-heading section-heading-spacious">
             <div>
               <span className="eyebrow">Em foco</span>
-              <h2>O que merece atenção agora</h2>
+              <h2>O que vale olhar primeiro</h2>
               <p className="section-supporting-text">
-                Uma leitura curta das tarefas mais relevantes para você retomar
-                o ritmo sem percorrer a lista inteira.
+                As tarefas abertas aparecem primeiro para você retomar a execução sem procurar demais.
               </p>
             </div>
             <Link className="soft-button" to="/tarefas">
@@ -204,15 +203,15 @@ export function DashboardPage() {
           <div className="stack-list stack-list-spacious">
             {tasksToShow.length === 0 ? (
               <div className="empty-state">
-                <strong>Nenhuma tarefa registrada</strong>
-                <p>Adicione sua primeira tarefa para começar a organizar o que vem pela frente.</p>
+                <strong>Nenhuma tarefa cadastrada</strong>
+                <p>Crie sua primeira tarefa para começar a usar a Avel no dia a dia.</p>
               </div>
             ) : (
               tasksToShow.slice(0, 4).map((task) => (
                 <div className="list-row list-row-spacious" key={task.id}>
                   <div>
                     <strong>{task.title}</strong>
-                    <p>{task.description ?? "Sem descrição adicional informada."}</p>
+                    <p>{task.description ?? "Sem contexto adicional informado."}</p>
                   </div>
                   <div className="row-meta">
                     <StatusBadge tone={task.completed ? "success" : "warning"}>
@@ -231,25 +230,27 @@ export function DashboardPage() {
               <span className="eyebrow">Pendências</span>
               <h2>Convites aguardando resposta</h2>
               <p className="section-supporting-text">
-                Mantenha a rede organizada respondendo ao que ainda está em aberto.
+                Convites recebidos ficam separados para você responder sem misturar com as conexões ativas.
               </p>
             </div>
-            <StatusBadge tone="warning">{pendingRequests.length} aguardando</StatusBadge>
+            <Link className="soft-button" to="/amigos">
+              Abrir conexões
+            </Link>
           </div>
 
           <div className="stack-list stack-list-spacious">
             {pendingRequests.length === 0 ? (
               <div className="empty-state">
                 <strong>Nenhum convite pendente</strong>
-                <p>Sua fila de solicitações está vazia no momento.</p>
+                <p>Quando alguém enviar uma solicitação, ela aparece aqui.</p>
               </div>
             ) : (
-              pendingRequests.map((request) => (
+              pendingRequests.slice(0, 4).map((request) => (
                 <div className="friend-row friend-row-spacious" key={request.id}>
                   <div className="avatar">#{request.requester_id}</div>
                   <div>
                     <strong>Convite do usuário #{request.requester_id}</strong>
-                    <p>Solicitação recebida para a conta atual.</p>
+                    <p>Pedido recebido e pronto para ser aceito ou recusado na área de conexões.</p>
                   </div>
                   <StatusBadge tone="warning">Pendente</StatusBadge>
                 </div>
@@ -264,9 +265,9 @@ export function DashboardPage() {
           <div className="section-heading section-heading-spacious">
             <div>
               <span className="eyebrow">Rede ativa</span>
-              <h2>Conexões que já fazem parte do seu espaço</h2>
+              <h2>Conexões já ativas na sua conta</h2>
               <p className="section-supporting-text">
-                Visualize rapidamente quem está conectado à sua conta hoje.
+                Veja rapidamente quem já faz parte da sua rede hoje.
               </p>
             </div>
             <StatusBadge tone="primary">{friends.length} conexões</StatusBadge>
@@ -276,10 +277,10 @@ export function DashboardPage() {
             {friends.length === 0 ? (
               <div className="empty-state">
                 <strong>Sem conexões ativas</strong>
-                <p>Assim que houver amizades aceitas, elas vão aparecer aqui.</p>
+                <p>As conexões aceitas serão listadas aqui assim que estiverem disponíveis.</p>
               </div>
             ) : (
-              friends.map((friend) => (
+              friends.slice(0, 4).map((friend) => (
                 <div className="friend-row friend-row-spacious" key={friend.id}>
                   <div className="avatar">{getInitials(friend.name)}</div>
                   <div>
@@ -297,9 +298,9 @@ export function DashboardPage() {
           <div className="section-heading section-heading-spacious">
             <div>
               <span className="eyebrow">Conta</span>
-              <h2>Sua presença na plataforma</h2>
+              <h2>Conta e sessão</h2>
               <p className="section-supporting-text">
-                Um resumo simples da conta em uso para reduzir dúvida e reforçar contexto.
+                Um resumo da conta em uso para reforçar contexto enquanto você navega pelo produto.
               </p>
             </div>
           </div>
@@ -316,7 +317,7 @@ export function DashboardPage() {
             <div className="list-row list-row-spacious">
               <div>
                 <strong>Sessão em andamento</strong>
-                <p>Você está autenticado e pronto para continuar usando a plataforma.</p>
+                <p>Você está autenticado e pronto para continuar usando a Avel.</p>
               </div>
               <StatusBadge tone="success">Ativa</StatusBadge>
             </div>

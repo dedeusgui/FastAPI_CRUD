@@ -1,0 +1,127 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  color: var(--text);
+  background: var(--bg);
+  text-rendering: optimizeLegibility;
+}
+
+body,
+button,
+input,
+textarea {
+  font-family: "Manrope", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+button {
+  cursor: pointer;
+  border: 0;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.64;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+input,
+textarea {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  font-size: 1rem;
+  line-height: 1.6;
+  outline: 0;
+}
+
+textarea {
+  resize: vertical;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--color-text-soft);
+}
+
+::selection {
+  background: rgba(0, 113, 227, 0.18);
+}
+
+:focus-visible {
+  outline: 3px solid rgba(0, 113, 227, 0.16);
+  outline-offset: 3px;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+h1,
+h2,
+h3,
+h4,
+strong {
+  text-wrap: balance;
+}
+
+p {
+  text-wrap: pretty;
+}
+
+.landing-page,
+.page-stack,
+.auth-shell,
+.auth-gate-card {
+  margin: 0 auto;
+}
+
+.landing-page {
+  width: min(var(--container-marketing), calc(100% - 64px));
+  padding: 32px 0 112px;
+}
+
+.page-stack {
+  width: min(var(--container-content), calc(100% - 96px));
+  padding: 64px 0 104px;
+  display: grid;
+  gap: 48px;
+}
+
+.auth-shell {
+  width: min(var(--container-auth), calc(100% - 96px));
+}
+
+.auth-gate-card {
+  width: min(720px, calc(100% - 96px));
+}
+
+.auth-page,
+.auth-gate {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  padding: 32px 0;
+}

@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { Check, UserMinus, Users, X } from "lucide-react";
+import { FormEvent, useEffect, useState } from "react";
+import { Check, Send, UserMinus, Users, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 import { StatusBadge } from "../../components/ui/StatusBadge";
@@ -11,16 +11,19 @@ import {
   getPendingFriendRequests,
   refuseFriendRequest,
   removeFriendship,
+  sendFriendRequest,
 } from "../../services/modules/friends";
 import type { FriendItem, PendingFriendRequest } from "../../types/app";
 import { getInitials } from "../../utils/avatar";
 
 export function FriendsPage() {
   const navigate = useNavigate();
-  const { user, clearSession } = useAuth();
+  const { clearSession } = useAuth();
   const [friends, setFriends] = useState<FriendItem[]>([]);
   const [pendingRequests, setPendingRequests] = useState<PendingFriendRequest[]>([]);
+  const [inviteId, setInviteId] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const [isSendingInvite, setIsSendingInvite] = useState(false);
   const [error, setError] = useState("");
   const [feedback, setFeedback] = useState("");
 
@@ -28,17 +31,13 @@ export function FriendsPage() {
     let active = true;
 
     async function loadFriends() {
-      if (!user) {
-        return;
-      }
-
       setIsLoading(true);
       setError("");
 
       try {
         const [friendList, pendingList] = await Promise.all([
-          getFriends(user.id),
-          getPendingFriendRequests(user.id),
+          getFriends(),
+          getPendingFriendRequests(),
         ]);
 
         if (!active) {
@@ -75,17 +74,13 @@ export function FriendsPage() {
     return () => {
       active = false;
     };
-  }, [clearSession, navigate, user]);
+  }, [clearSession, navigate]);
 
   async function refreshFriends(message?: string) {
-    if (!user) {
-      return;
-    }
-
     try {
       const [friendList, pendingList] = await Promise.all([
-        getFriends(user.id),
-        getPendingFriendRequests(user.id),
+        getFriends(),
+        getPendingFriendRequests(),
       ]);
 
       setFriends(friendList);
@@ -108,15 +103,41 @@ export function FriendsPage() {
     }
   }
 
+  async function handleInviteSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setFeedback("");
+    setError("");
+
+    const friendId = Number(inviteId.trim());
+
+    if (!Number.isInteger(friendId) || friendId <= 0) {
+      setError("Informe um ID de usuário válido para enviar o convite.");
+      return;
+    }
+
+    setIsSendingInvite(true);
+
+    try {
+      await sendFriendRequest(friendId);
+      setInviteId("");
+      await refreshFriends("Convite enviado com sucesso.");
+    } catch (actionError) {
+      setError(
+        actionError instanceof Error
+          ? actionError.message
+          : "Não foi possível enviar este convite.",
+      );
+    } finally {
+      setIsSendingInvite(false);
+    }
+  }
+
   async function handleAccept(request: PendingFriendRequest) {
     setFeedback("");
     setError("");
 
     try {
-      await acceptFriendRequest({
-        requester_id: request.requester_id,
-        receiver_id: request.receiver_id,
-      });
+      await acceptFriendRequest(request.requester_id);
       await refreshFriends("Solicitação aceita com sucesso.");
     } catch (actionError) {
       setError(
@@ -132,10 +153,7 @@ export function FriendsPage() {
     setError("");
 
     try {
-      await refuseFriendRequest({
-        requester_id: request.requester_id,
-        receiver_id: request.receiver_id,
-      });
+      await refuseFriendRequest(request.requester_id);
       await refreshFriends("Solicitação recusada.");
     } catch (actionError) {
       setError(
@@ -147,15 +165,11 @@ export function FriendsPage() {
   }
 
   async function handleRemove(friend: FriendItem) {
-    if (!user) {
-      return;
-    }
-
     setFeedback("");
     setError("");
 
     try {
-      await removeFriendship(user.id, friend.id);
+      await removeFriendship(friend.id);
       await refreshFriends("Conexão removida.");
     } catch (actionError) {
       setError(
@@ -172,7 +186,7 @@ export function FriendsPage() {
         <section className="surface-card loading-card">
           <span className="eyebrow">Conexões</span>
           <h1>Carregando sua rede</h1>
-          <p>Preparando convites e conexões ativas da sua conta.</p>
+          <p>Buscando convites pendentes e conexões ativas da sua conta.</p>
         </section>
       </div>
     );
@@ -183,11 +197,10 @@ export function FriendsPage() {
       <section className="page-hero-card">
         <div className="page-hero-copy">
           <span className="eyebrow">Conexões</span>
-          <h1>Uma rede mais organizada para acompanhar quem já está com você.</h1>
+          <h1>Uma rede leve para complementar sua rotina.</h1>
           <p>
-            Convites e contatos ativos ficam em áreas separadas para facilitar
-            leitura, resposta e manutenção da sua rede sem parecer uma tela
-            carregada demais.
+            Hoje a camada social da Avel é simples: enviar convites por ID,
+            responder pendências e manter conexões ativas em ordem.
           </p>
         </div>
 
@@ -213,13 +226,46 @@ export function FriendsPage() {
       {feedback ? <p className="form-feedback form-feedback-success">{feedback}</p> : null}
 
       <section className="content-grid content-grid-featured friends-overview-grid">
+        <article className="surface-card surface-card-spacious task-composer-card">
+          <div className="section-heading section-heading-spacious">
+            <div>
+              <span className="eyebrow">Novo convite</span>
+              <h2>Conectar uma nova conta</h2>
+              <p className="section-supporting-text">
+                Neste estágio do produto, os convites são enviados pelo ID do
+                usuário para manter o fluxo simples e alinhado à API atual.
+              </p>
+            </div>
+          </div>
+
+          <form className="task-form" onSubmit={handleInviteSubmit}>
+            <label className="field">
+              <span>ID do usuário</span>
+              <div className="field-input">
+                <input
+                  inputMode="numeric"
+                  placeholder="Ex.: 12"
+                  type="text"
+                  value={inviteId}
+                  onChange={(event) => setInviteId(event.target.value)}
+                />
+              </div>
+            </label>
+
+            <button className="primary-button" disabled={isSendingInvite} type="submit">
+              <Send size={18} />
+              {isSendingInvite ? "Enviando..." : "Enviar convite"}
+            </button>
+          </form>
+        </article>
+
         <article className="surface-card surface-card-spacious">
           <div className="section-heading section-heading-spacious">
             <div>
               <span className="eyebrow">Pendências</span>
               <h2>Solicitações aguardando resposta</h2>
               <p className="section-supporting-text">
-                Responda aos convites recebidos sem perder visibilidade do restante da rede.
+                Responda aos convites recebidos antes de eles entrarem para a rede ativa.
               </p>
             </div>
             <StatusBadge tone="warning">{pendingRequests.length} aguardando</StatusBadge>
@@ -238,13 +284,13 @@ export function FriendsPage() {
                     <div className="avatar avatar-large">#{request.requester_id}</div>
                     <div>
                       <strong>Usuário #{request.requester_id}</strong>
-                      <p>Convite recebido para a sua conta atual.</p>
+                      <p>Solicitação recebida para a sua conta atual.</p>
                     </div>
                   </div>
 
                   <p>
-                    Por enquanto, esta listagem mostra o identificador disponível
-                    para manter clareza e consistência na resposta aos convites.
+                    O identificador da conta é exibido porque este MVP ainda não
+                    possui busca de usuários ou perfis públicos completos.
                   </p>
 
                   <div className="friend-card-actions">
@@ -265,50 +311,50 @@ export function FriendsPage() {
             )}
           </div>
         </article>
+      </section>
 
-        <article className="surface-card surface-card-spacious">
-          <div className="section-heading section-heading-spacious">
-            <div>
-              <span className="eyebrow">Rede ativa</span>
-              <h2>Conexões já confirmadas</h2>
-              <p className="section-supporting-text">
-                Pessoas que já fazem parte da sua rede em uma visualização mais aberta e fácil de percorrer.
-              </p>
+      <section className="surface-card surface-card-spacious">
+        <div className="section-heading section-heading-spacious">
+          <div>
+            <span className="eyebrow">Rede ativa</span>
+            <h2>Conexões já confirmadas</h2>
+            <p className="section-supporting-text">
+              Pessoas que já fazem parte da sua rede e podem continuar no seu fluxo.
+            </p>
+          </div>
+          <StatusBadge tone="success">{friends.length} ativas</StatusBadge>
+        </div>
+
+        <div className="friend-grid friend-grid-spacious">
+          {friends.length === 0 ? (
+            <div className="empty-state empty-state-wide">
+              <strong>Sem conexões confirmadas</strong>
+              <p>Assim que houver amizades aceitas, elas serão exibidas aqui.</p>
             </div>
-            <StatusBadge tone="success">{friends.length} ativas</StatusBadge>
-          </div>
-
-          <div className="friend-grid friend-grid-spacious">
-            {friends.length === 0 ? (
-              <div className="empty-state empty-state-wide">
-                <strong>Sem conexões confirmadas</strong>
-                <p>Assim que houver amizades aceitas, elas serão exibidas aqui.</p>
-              </div>
-            ) : (
-              friends.map((friend) => (
-                <article className="friend-card friend-card-spacious" key={friend.id}>
-                  <div className="friend-card-top">
-                    <div className="avatar avatar-large">{getInitials(friend.name)}</div>
-                    <div>
-                      <strong>{friend.name}</strong>
-                      <p>{friend.email}</p>
-                    </div>
+          ) : (
+            friends.map((friend) => (
+              <article className="friend-card friend-card-spacious" key={friend.id}>
+                <div className="friend-card-top">
+                  <div className="avatar avatar-large">{getInitials(friend.name)}</div>
+                  <div>
+                    <strong>{friend.name}</strong>
+                    <p>{friend.email}</p>
                   </div>
+                </div>
 
-                  <p>Conexão disponível para consulta e gestão dentro do seu espaço de trabalho.</p>
+                <p>Conexão disponível para consulta e gestão dentro da sua conta.</p>
 
-                  <div className="friend-card-actions">
-                    <StatusBadge tone="success">Ativa</StatusBadge>
-                    <button className="soft-button soft-button-danger" type="button" onClick={() => handleRemove(friend)}>
-                      <UserMinus size={16} />
-                      Remover
-                    </button>
-                  </div>
-                </article>
-              ))
-            )}
-          </div>
-        </article>
+                <div className="friend-card-actions">
+                  <StatusBadge tone="success">Ativa</StatusBadge>
+                  <button className="soft-button soft-button-danger" type="button" onClick={() => handleRemove(friend)}>
+                    <UserMinus size={16} />
+                    Remover
+                  </button>
+                </div>
+              </article>
+            ))
+          )}
+        </div>
       </section>
     </div>
   );

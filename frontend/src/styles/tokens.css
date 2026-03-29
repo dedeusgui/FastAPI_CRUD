@@ -1,0 +1,83 @@
+:root {
+  color-scheme: light;
+  font-family: "Manrope", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+
+  --color-canvas: #f5f5f7;
+  --color-canvas-alt: #ededf0;
+  --color-surface: #ffffff;
+  --color-surface-muted: #fbfbfd;
+  --color-surface-soft: #f7f8fa;
+  --color-border: rgba(29, 29, 31, 0.08);
+  --color-border-strong: rgba(29, 29, 31, 0.14);
+  --color-text: #1d1d1f;
+  --color-text-muted: #6e6e73;
+  --color-text-soft: #86868b;
+  --color-accent: #0071e3;
+  --color-accent-strong: #0058b0;
+  --color-accent-soft: rgba(0, 113, 227, 0.12);
+  --color-success: #1f7a36;
+  --color-success-soft: rgba(31, 122, 54, 0.12);
+  --color-warning: #a15c00;
+  --color-warning-soft: rgba(161, 92, 0, 0.14);
+  --color-danger: #bc1b1b;
+  --color-danger-soft: rgba(188, 27, 27, 0.12);
+  --color-rose: #b82f6a;
+  --color-rose-soft: rgba(184, 47, 106, 0.12);
+
+  --bg: var(--color-canvas);
+  --bg-deep: var(--color-canvas-alt);
+  --surface: var(--color-surface);
+  --surface-strong: var(--color-surface);
+  --surface-soft: var(--color-surface-soft);
+  --surface-muted: var(--color-surface-muted);
+  --border: var(--color-border);
+  --border-strong: var(--color-border-strong);
+  --text: var(--color-text);
+  --muted: var(--color-text-muted);
+  --muted-strong: var(--color-text-soft);
+  --blue: var(--color-accent);
+  --blue-strong: var(--color-accent-strong);
+  --blue-soft: var(--color-accent-soft);
+  --green: var(--color-success);
+  --green-soft: var(--color-success-soft);
+  --amber: var(--color-warning);
+  --amber-soft: var(--color-warning-soft);
+  --rose: var(--color-rose);
+  --rose-soft: var(--color-rose-soft);
+  --danger: var(--color-danger);
+  --danger-soft: var(--color-danger-soft);
+
+  --shadow-1: 0 12px 30px rgba(29, 29, 31, 0.05);
+  --shadow-2: 0 24px 60px rgba(29, 29, 31, 0.08);
+  --shadow: var(--shadow-2);
+  --shadow-soft: var(--shadow-1);
+
+  --radius-sm: 16px;
+  --radius-md: 24px;
+  --radius-lg: 32px;
+  --radius-xl: 40px;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+  --space-9: 96px;
+  --space-10: 128px;
+
+  --container-marketing: 1380px;
+  --container-content: 1120px;
+  --container-auth: 1180px;
+  --container-app: 1320px;
+  --sidebar-width: 244px;
+
+  --measure-hero: 10.5ch;
+  --measure-copy: 56ch;
+  --measure-card: 40ch;
+
+  --transition-fast: 160ms ease;
+  --transition-base: 240ms ease;
+}

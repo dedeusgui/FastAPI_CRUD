@@ -21,6 +21,7 @@ Projeto de portfolio com uma API REST construída em FastAPI. A aplicação cobr
 - [Arquitetura](docs/ARCHITECTURE.MD)
 - [Regras de Negócio](docs/BUSINESS_RULES.MD)
 - [Regras da Codebase](docs/CODEBASE_RULES.MD)
+- [Padrões do Frontend](docs/FRONTEND_STANDARDS.MD)
 
 ## Observação
 

@@ -48,21 +48,20 @@ export function RegisterPage() {
         <div className="auth-panel auth-panel-brand">
           <Brand />
           <span className="eyebrow">Criar conta</span>
-          <h1>Comece com uma base organizada para acompanhar sua rotina desde o primeiro dia.</h1>
+          <h1>Teste a Avel com uma conta real desde o primeiro acesso.</h1>
           <p>
-            Crie sua conta para acessar um espaço de trabalho mais limpo, com
-            prioridades visíveis, conexões organizadas e uma experiência de uso
-            pensada como produto.
+            Crie sua conta para usar o MVP com autenticação, tarefas e
+            conexões reais sobre a API atual.
           </p>
 
           <div className="auth-benefits">
             <article className="auth-benefit-card">
-              <strong>Entrada simples</strong>
-              <p>Cadastro direto para você começar sem etapas desnecessárias.</p>
+              <strong>Cadastro direto</strong>
+              <p>Nome, e-mail e senha bastam para começar a validar o produto.</p>
             </article>
             <article className="auth-benefit-card">
-              <strong>Estrutura clara</strong>
-              <p>O painel já nasce pronto para acompanhar tarefas e conexões com contexto.</p>
+              <strong>Base funcional</strong>
+              <p>Você entra com a conta criada e já acessa o painel autenticado.</p>
             </article>
           </div>
         </div>

@@ -11,7 +11,7 @@ export function RedirectIfAuthenticated() {
         <div className="auth-gate-card">
           <span className="eyebrow">Avel</span>
           <h1>Preparando a experiência</h1>
-          <p>Validando se você já possui uma sessão ativa neste navegador.</p>
+          <p>Checando se já existe uma sessão ativa neste navegador.</p>
         </div>
       </div>
     );
