@@ -19,3 +19,12 @@ class UserService:
         if user is None:
             raise ValueError("User not found")
         return user
+
+    def get_user_by_username(self, username: str) -> User | None:
+        user = self.user_repository.get_user_by_username(username)
+        if user is None:
+            raise ValueError("User not found")
+        return user
+
+    def get_users(self, skip: int = 0, limit: int = 100) -> list[User]:
+        return self.user_repository.get_users(skip=skip, limit=limit)

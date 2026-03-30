@@ -81,3 +81,25 @@ def logout_user(
         session_service.revoke_session(actual_session)
     response.delete_cookie(key="access_token")
     return {"message": "Logout successful"}
+
+
+@router.get("/")
+def list_users(
+    skip: int = 0,
+    limit: int = 100,
+    user_service: UserService = Depends(get_user_service),
+):
+    users = user_service.get_users(skip=skip, limit=limit)
+    return users
+
+
+@router.get("/by-username/{username}")
+def get_user_by_username(
+    username: str,
+    user_service: UserService = Depends(get_user_service),
+):
+    try:
+        user = user_service.get_user_by_username(username)
+        return user
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))

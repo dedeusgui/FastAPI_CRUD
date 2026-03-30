@@ -12,11 +12,13 @@ class User(Base):
     __tablename__ = "users"
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
+    username: Mapped[str] = mapped_column(unique=True, index=True)
     name: Mapped[str] = mapped_column(index=True)
     email: Mapped[str] = mapped_column(unique=True, index=True)
     hashed_password: Mapped[str]
     tasks: Mapped[List["Task"]] = relationship("Task", back_populates="user")
     sessions = relationship("Session", back_populates="user")
+    avatar_url: Mapped[str] = mapped_column(default="https://www.gravatar.com/avatar/")
 
     sent_friendships: Mapped[list["Friendship"]] = relationship(
         "Friendship",
