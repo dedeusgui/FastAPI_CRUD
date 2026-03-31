@@ -20,7 +20,7 @@ class TaskRepository:
 
     def update_task(
         self, task: Task, title: str | None, description: str | None
-    ) -> None:
+    ) -> Task | None:
 
         if not task:
             return None
@@ -32,11 +32,13 @@ class TaskRepository:
             task.description = description
         self.db.commit()
         self.db.refresh(task)
+        return task
 
-    def complete_task(self, task: Task) -> None:
+    def complete_task(self, task: Task) -> Task:
         task.completed = True
         self.db.commit()
         self.db.refresh(task)
+        return task
 
     def get_task_by_id(self, id: int) -> Task | None:
         return self.db.query(Task).filter(Task.id == id).first()

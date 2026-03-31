@@ -10,33 +10,35 @@ class TaskService:
         self.task_repository = task_repository
         self.user_service = user_service
 
-    def create_task(self, title: str, description: str | None, user_id: int) -> None:
+    def create_task(
+        self, title: str, description: str | None, user_id: int
+    ) -> Task | None:
         try:
             self.user_service.get_user_by_id(user_id)
         except ValueError:
             raise HTTPException(status_code=404, detail="User not found")
         task = Task(title=title, description=description, user_id=user_id)
 
-        self.task_repository.create_task(task)
+        return self.task_repository.create_task(task)
 
-    def complete_task(self, id: int, user_id: int) -> None:
+    def complete_task(self, id: int, user_id: int) -> Task:
         task = self.task_repository.get_task_by_id(id)
         if not task:
             raise HTTPException(status_code=404, detail="Task not found")
         if task.user_id != user_id:
             raise HTTPException(status_code=403, detail="Unauthorized")
-        self.task_repository.complete_task(task)
+        return self.task_repository.complete_task(task)
 
     def update_task(
         self, id: int, title: str | None, description: str | None, user_id: int
-    ) -> None:
+    ) -> Task | None:
         task = self.task_repository.get_task_by_id(id)
         if not task:
             raise HTTPException(status_code=404, detail="Task not found")
         if task.user_id != user_id:
             raise HTTPException(status_code=403, detail="Unauthorized")
 
-        self.task_repository.update_task(
+        return self.task_repository.update_task(
             task,
             title,
             description,
@@ -54,3 +56,11 @@ class TaskService:
         if not user_id:
             raise HTTPException(status_code=400, detail="User ID is required")
         return self.task_repository.get_tasks_by_user_id(user_id)
+
+    def get_task_by_id(self, id: int, user_id: int) -> Task:
+        task = self.task_repository.get_task_by_id(id)
+        if not task:
+            raise HTTPException(status_code=404, detail="Task not found")
+        if task.user_id != user_id:
+            raise HTTPException(status_code=403, detail="Unauthorized")
+        return task

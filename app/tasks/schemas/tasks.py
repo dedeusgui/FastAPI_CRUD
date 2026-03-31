@@ -11,6 +11,15 @@ class TaskUpdate(BaseModel):
     description: str | None = None
 
 
+class TaskResponse(BaseModel):
+    id: int
+    title: str
+    description: str | None = None
+    completed: bool
+
+    model_config = {"from_attributes": True}
+
+
 class TaskRead(BaseModel):
     id: int
     title: str
@@ -22,3 +31,7 @@ class TaskRead(BaseModel):
 
 class TaskDelete(BaseModel):
     id: int
+
+
+class TaskList(BaseModel):
+    tasks: list[TaskResponse]

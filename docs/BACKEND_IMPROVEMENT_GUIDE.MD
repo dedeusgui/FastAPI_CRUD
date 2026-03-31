@@ -5,6 +5,7 @@
 Este documento traduz as limitacoes atuais da API em um plano pratico de evolucao orientado ao consumo do frontend.
 
 Foco:
+
 - melhorar contratos HTTP
 - reduzir friccao de integracao
 - padronizar respostas e erros
@@ -21,24 +22,30 @@ Foco:
 ### O que limita evolucao do produto
 
 1. Respostas de mutacao pobres em tarefas.
+
 - create, update, complete e delete nao retornam dados uteis.
 - frontend precisa refazer listas completas apos toda acao.
 
 2. Fluxo de amizade restrito por ID.
+
 - convite exige friend_id direto.
 - nao existe busca por usuario para descoberta.
 
 3. Pendencias de amizade com pouca informacao.
+
 - lista pendente nao traz dados de perfil do solicitante no formato ideal para UI.
 
 4. Ausencia de endpoint agregado para dashboard.
+
 - frontend faz varias chamadas paralelas e trata erros parciais manualmente.
 
 5. Padrao de erro incompleto.
+
 - detalhe textual existe, mas sem codigo de dominio padronizado.
 - falta contrato unificado para erros de negocio.
 
 6. Padrao de sucesso inconsistente entre dominios.
+
 - parte retorna message, parte retorna entidade, parte retorna vazio.
 
 ## Principios de Evolucao
@@ -54,9 +61,11 @@ Foco:
 ### Sucesso
 
 Para operacoes de leitura:
+
 - manter retorno do recurso ou lista de recursos
 
 Para operacoes de mutacao:
+
 - retornar recurso atualizado quando fizer sentido
 - usar status code semantico
 
@@ -87,6 +96,7 @@ Padrao recomendado:
 ```
 
 Campos:
+
 - code: identificador estavel para front decidir UX
 - message: mensagem humana
 - detail: detalhe tecnico opcional
@@ -165,15 +175,19 @@ POST /users/register:
 ### Melhorias recomendadas
 
 1. Criar endpoint de busca de usuarios.
+
 - GET /users/search?query=ana&limit=10
 
 2. Enriquecer pending requests com remetente.
+
 - incluir requester: id, name, email, avatar_url
 
 3. Criar endpoint de sugestoes basicas de conexao (opcional).
+
 - GET /friends/suggestions
 
 4. Revisar resposta de status para objeto em vez de string bruta.
+
 - de: "accepted"
 - para: { "status": "accepted" }
 
@@ -205,6 +219,7 @@ POST /users/register:
 ### Melhoria recomendada
 
 Criar endpoint agregado:
+
 - GET /dashboard/summary
 
 Resposta sugerida:
@@ -249,9 +264,11 @@ Resposta sugerida:
 ## Versionamento e migracao
 
 Opcao A:
+
 - manter rotas atuais e adicionar novos formatos progressivamente
 
 Opcao B:
+
 - prefixar melhoria maior em /v2
 
 Para este projeto, opcao A tende a ser mais simples e rapida.
@@ -289,6 +306,7 @@ Para este projeto, opcao A tende a ser mais simples e rapida.
 ## Resultado Esperado
 
 Com essas melhorias, o frontend passa a:
+
 - depender menos de refetch completo
 - exibir estados mais ricos e claros
 - reduzir tratamentos ad hoc de erro
