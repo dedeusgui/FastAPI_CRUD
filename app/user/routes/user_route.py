@@ -31,7 +31,9 @@ COOKIE_SECURE = settings.cookie_secure
 SESSION_HOURS = settings.session_hours
 
 
-@router.post("/register", response_model=UserEnvelope, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/register", response_model=UserEnvelope, status_code=status.HTTP_201_CREATED
+)
 def register_user(
     user: UserCreate, user_service: UserService = Depends(get_user_service)
 ):
