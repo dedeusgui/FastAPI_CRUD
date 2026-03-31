@@ -23,6 +23,7 @@ from app.user.schemas.user import (
     UserListData,
     UserListEnvelope,
     UserLogin,
+    UserUpdate,
 )
 
 router = APIRouter(prefix="/users", tags=["users"])
@@ -38,7 +39,7 @@ def register_user(
     user: UserCreate, user_service: UserService = Depends(get_user_service)
 ):
     created_user = user_service.register_user(
-        user.name, user.username, user.email, user.password
+        user.name, user.username, user.email, user.avatar_url, user.password
     )
     return build_success_response(
         UserData(user=created_user),
@@ -78,6 +79,22 @@ def login_user(
 @router.get("/me", response_model=UserEnvelope)
 def get_me(current_user=Depends(get_current_user)):
     return build_success_response(UserData(user=current_user))
+
+
+@router.patch("/me", response_model=UserEnvelope)
+def update_me(
+    user_update: UserUpdate,
+    user_service: UserService = Depends(get_user_service),
+    current_user=Depends(get_current_user),
+):
+    user = current_user
+    user.user_service.update_me(
+        user_id=user.id,
+        name=user_update.name,
+        email=user_update.email,
+        avatar_url=user_update.avatar_url,
+    )
+    return build_success_response(UserData(user=user))
 
 
 @router.post("/logout", response_model=ApiMessageResponse)

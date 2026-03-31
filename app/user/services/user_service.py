@@ -9,7 +9,7 @@ class UserService:
         self.user_repository = user_repository
 
     def register_user(
-        self, name: str, username: str, email: str, password: str
+        self, name: str, username: str, email: str, avatar_url: str, password: str
     ) -> User:
         if self.user_repository.get_user_by_email(email):
             raise AppException(
@@ -23,6 +23,7 @@ class UserService:
             username=username,
             name=name,
             email=email,
+            avatar_url=avatar_url,
             hashed_password=hashed_password,
         )
         return self.user_repository.create_user(user)
@@ -49,3 +50,25 @@ class UserService:
 
     def get_users(self, skip: int = 0, limit: int = 100) -> list[User]:
         return self.user_repository.get_users(skip=skip, limit=limit)
+
+    def update_me(
+        self,
+        user_id: int,
+        name: str | None = None,
+        email: str | None = None,
+        avatar_url: str | None = None,
+    ) -> User:
+        user = self.get_user_by_id(user_id)
+        if name is not None:
+            user.name = name
+        if email is not None:
+            if self.user_repository.get_user_by_email(email):
+                raise AppException(
+                    status_code=400,
+                    code="USER_EMAIL_ALREADY_REGISTERED",
+                    message="Email already registered",
+                )
+            user.email = email
+        if avatar_url is not None:
+            user.avatar_url = avatar_url
+        return self.user_repository.update_user(user)

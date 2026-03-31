@@ -6,9 +6,16 @@ from app.user.models.user import User
 
 class UserCreate(BaseModel):
     name: str
-    email: EmailStr
     username: str
+    email: EmailStr
+    avatar_url: str
     password: str = Field(min_length=6)
+
+
+class UserUpdate(BaseModel):
+    name: str | None = None
+    email: EmailStr | None = None
+    avatar_url: str | None = None
 
 
 class UserLogin(BaseModel):
@@ -16,16 +23,12 @@ class UserLogin(BaseModel):
     password: str = Field(min_length=6)
 
 
-class UserUpdate(BaseModel):
-    name: str | None = None
-    email: EmailStr | None = None
-
-
 class UserResponse(BaseModel):
     id: int
     name: str
     email: EmailStr
     username: str
+    avatar_url: str
 
     model_config = {"from_attributes": True}
 
