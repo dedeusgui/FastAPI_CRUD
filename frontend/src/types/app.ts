@@ -27,10 +27,6 @@ export interface PendingFriendRequest {
   status: FriendStatus;
 }
 
-export interface FriendshipStatusResponse {
-  status: FriendStatus;
-}
-
 export interface AuthPayload {
   email: string;
   password: string;

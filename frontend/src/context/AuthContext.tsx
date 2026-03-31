@@ -10,6 +10,7 @@ import { ApiError } from "../services/api/client";
 import {
   getCurrentUser,
   login as loginRequest,
+  logout as logoutRequest,
   register as registerRequest,
 } from "../services/modules/auth";
 import type { AuthPayload, AuthUser, RegisterPayload } from "../types/app";
@@ -19,6 +20,7 @@ interface AuthContextValue {
   isLoading: boolean;
   login: (payload: AuthPayload) => Promise<void>;
   register: (payload: RegisterPayload) => Promise<void>;
+  logout: () => Promise<void>;
   clearSession: () => void;
   refreshSession: () => Promise<void>;
 }
@@ -61,6 +63,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
   }
 
+  async function logout() {
+    try {
+      await logoutRequest();
+    } catch (error) {
+      if (!(error instanceof ApiError && error.status === 401)) {
+        throw error;
+      }
+    } finally {
+      setUser(null);
+    }
+  }
+
   useEffect(() => {
     let active = true;
 
@@ -92,6 +106,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         isLoading,
         login,
         register,
+        logout,
         clearSession,
         refreshSession,
       }}

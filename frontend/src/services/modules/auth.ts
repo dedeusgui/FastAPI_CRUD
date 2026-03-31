@@ -22,3 +22,9 @@ export function register(payload: RegisterPayload) {
     body: JSON.stringify(payload),
   });
 }
+
+export function logout() {
+  return apiRequest<MessageResponse>("/users/logout", {
+    method: "POST",
+  });
+}

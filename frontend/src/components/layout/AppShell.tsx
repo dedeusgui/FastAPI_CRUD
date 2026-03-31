@@ -2,10 +2,12 @@ import {
   ChevronRight,
   LayoutDashboard,
   ListTodo,
+  LogOut,
   Sparkles,
   Users,
 } from "lucide-react";
-import { Link, NavLink, Outlet } from "react-router-dom";
+import { useState } from "react";
+import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
 
 import { useAuth } from "../../context/AuthContext";
 import { Brand } from "../ui/Brand";
@@ -17,7 +19,24 @@ const navigation = [
 ];
 
 export function AppShell() {
-  const { user } = useAuth();
+  const navigate = useNavigate();
+  const { user, logout } = useAuth();
+  const [isSigningOut, setIsSigningOut] = useState(false);
+
+  async function handleSignOut() {
+    if (isSigningOut) {
+      return;
+    }
+
+    setIsSigningOut(true);
+
+    try {
+      await logout();
+      navigate("/entrar", { replace: true });
+    } finally {
+      setIsSigningOut(false);
+    }
+  }
 
   return (
     <div className="app-shell">
@@ -62,6 +81,15 @@ export function AppShell() {
           <Link className="ghost-button sidebar-link" to="/">
             Ver a proposta
           </Link>
+          <button
+            className="soft-button sidebar-link"
+            disabled={isSigningOut}
+            onClick={handleSignOut}
+            type="button"
+          >
+            <LogOut size={16} />
+            {isSigningOut ? "Saindo..." : "Sair"}
+          </button>
         </div>
       </aside>
 
