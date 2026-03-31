@@ -1,6 +1,6 @@
 from config.config import settings
 
-from app.user.schemas.user import UserCreate, UserLogin
+from app.shared import ApiMessageResponse, build_success_response
 from app.auth.services.auth_service import AuthService
 from app.auth.services.session_service import SessionService
 from app.auth.utils.security import (
@@ -9,12 +9,20 @@ from app.auth.utils.security import (
     create_session_token,
 )
 from app.user.services.user_service import UserService
-from fastapi import APIRouter, Depends, HTTPException, Request, Response
+from fastapi import APIRouter, Depends, Request, Response, status
 from app.user.dependencies.user_dependencies import get_user_service
 from app.auth.dependencies.auth_dependencies import (
     get_auth_service,
     get_current_user,
     get_session_service,
+)
+from app.user.schemas.user import (
+    UserCreate,
+    UserData,
+    UserEnvelope,
+    UserListData,
+    UserListEnvelope,
+    UserLogin,
 )
 
 router = APIRouter(prefix="/users", tags=["users"])
@@ -23,18 +31,18 @@ COOKIE_SECURE = settings.cookie_secure
 SESSION_HOURS = settings.session_hours
 
 
-@router.post("/register")
+@router.post("/register", response_model=UserEnvelope, status_code=status.HTTP_201_CREATED)
 def register_user(
     user: UserCreate, user_service: UserService = Depends(get_user_service)
 ):
-    try:
-        user_service.register_user(user.name, user.email, user.password)
-        return {"message": "User registered successfully"}
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    created_user = user_service.register_user(user.name, user.email, user.password)
+    return build_success_response(
+        UserData(user=created_user),
+        message="User registered successfully",
+    )
 
 
-@router.post("/login")
+@router.post("/login", response_model=UserEnvelope)
 def login_user(
     user: UserLogin,
     response: Response,
@@ -57,19 +65,18 @@ def login_user(
         samesite="lax",
     )
 
-    return {"message": "Login successful"}
+    return build_success_response(
+        UserData(user=auth_user),
+        message="Login successful",
+    )
 
 
-@router.get("/me")
+@router.get("/me", response_model=UserEnvelope)
 def get_me(current_user=Depends(get_current_user)):
-    return {
-        "id": current_user.id,
-        "name": current_user.name,
-        "email": current_user.email,
-    }
+    return build_success_response(UserData(user=current_user))
 
 
-@router.post("/logout")
+@router.post("/logout", response_model=ApiMessageResponse)
 def logout_user(
     request: Request,
     response: Response,
@@ -80,26 +87,23 @@ def logout_user(
     if actual_session:
         session_service.revoke_session(actual_session)
     response.delete_cookie(key="access_token")
-    return {"message": "Logout successful"}
+    return build_success_response(None, message="Logout successful")
 
 
-@router.get("/")
+@router.get("/", response_model=UserListEnvelope)
 def list_users(
     skip: int = 0,
     limit: int = 100,
     user_service: UserService = Depends(get_user_service),
 ):
     users = user_service.get_users(skip=skip, limit=limit)
-    return users
+    return build_success_response(UserListData(users=users))
 
 
-@router.get("/by-username/{username}")
+@router.get("/by-username/{username}", response_model=UserEnvelope)
 def get_user_by_username(
     username: str,
     user_service: UserService = Depends(get_user_service),
 ):
-    try:
-        user = user_service.get_user_by_username(username)
-        return user
-    except ValueError as e:
-        raise HTTPException(status_code=404, detail=str(e))
+    user = user_service.get_user_by_username(username)
+    return build_success_response(UserData(user=user))

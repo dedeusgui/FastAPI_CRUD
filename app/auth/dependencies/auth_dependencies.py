@@ -1,4 +1,4 @@
-from fastapi import Depends, HTTPException, Request
+from fastapi import Depends, Request
 from app.auth.repositories.session_repository import SessionRepository
 from app.auth.services.session_service import SessionService
 from app.user.repositories.user_repository import UserRepository
@@ -6,6 +6,7 @@ from app.user.dependencies.user_dependencies import (
     get_user_repository,
 )
 from app.auth.services.auth_service import AuthService
+from app.shared import AppException
 
 from config.database import get_db
 
@@ -32,9 +33,17 @@ def get_current_user(
 ):
     token = request.cookies.get("access_token")
     if not token:
-        raise HTTPException(status_code=401, detail="Not authenticated")
+        raise AppException(
+            status_code=401,
+            code="AUTH_NOT_AUTHENTICATED",
+            message="Not authenticated",
+        )
 
     session = session_service.get_session_by_token(token)
     if session is None:
-        raise HTTPException(status_code=401, detail="Invalid token")
+        raise AppException(
+            status_code=401,
+            code="AUTH_INVALID_TOKEN",
+            message="Invalid token",
+        )
     return session.user

@@ -1,11 +1,20 @@
-from app.tasks.models.tasks import Task
-
-
 def _create_and_login(client, register_user, login_user, name, email, password):
     register_user(name=name, email=email, password=password)
     _, token = login_user(email, password)
     me = client.get("/users/me", cookies={"access_token": token})
-    return token, me.json()["id"]
+    return token, me.json()["data"]["user"]["id"]
+
+
+def _task_list(response):
+    return response.json()["data"]["tasks"]
+
+
+def _task_item(response):
+    return response.json()["data"]["task"]
+
+
+def _error_payload(response):
+    return response.json()["error"]
 
 
 def test_create_task_links_to_authenticated_user(client, register_user, login_user):
@@ -24,11 +33,16 @@ def test_create_task_links_to_authenticated_user(client, register_user, login_us
         cookies={"access_token": token},
     )
     tasks_response = client.get("/tasks/", cookies={"access_token": token})
+    created_task = _task_item(response)
+    task_list = _task_list(tasks_response)
 
-    assert response.status_code == 200
+    assert response.status_code == 201
     assert tasks_response.status_code == 200
-    assert len(tasks_response.json()) == 1
-    assert tasks_response.json()[0]["user_id"] == user_id
+    assert len(task_list) == 1
+    assert created_task["id"] == task_list[0]["id"]
+    assert task_list[0]["title"] == "My Task"
+    assert "user_id" not in created_task
+    assert "user_id" not in task_list[0]
 
 
 def test_get_tasks_returns_only_authenticated_user_tasks(
@@ -63,10 +77,11 @@ def test_get_tasks_returns_only_authenticated_user_tasks(
     )
 
     response_user_1 = client.get("/tasks/", cookies={"access_token": token_user_1})
+    task_list = _task_list(response_user_1)
 
     assert response_user_1.status_code == 200
-    assert len(response_user_1.json()) == 1
-    assert response_user_1.json()[0]["title"] == "Task U1"
+    assert len(task_list) == 1
+    assert task_list[0]["title"] == "Task U1"
 
 
 def test_complete_task_success_for_owner(client, register_user, login_user):
@@ -84,12 +99,12 @@ def test_complete_task_success_for_owner(client, register_user, login_user):
         json={"title": "To Complete", "description": "desc"},
         cookies={"access_token": token},
     )
-    task_id = client.get("/tasks/", cookies={"access_token": token}).json()[0]["id"]
+    task_id = _task_list(client.get("/tasks/", cookies={"access_token": token}))[0]["id"]
 
     response = client.post(
         f"/tasks/complete/{task_id}", cookies={"access_token": token}
     )
-    completed_task = client.get("/tasks/", cookies={"access_token": token}).json()[0]
+    completed_task = _task_item(response)
 
     assert response.status_code == 200
     assert completed_task["completed"] is True
@@ -118,9 +133,9 @@ def test_complete_task_other_user_returns_403(client, register_user, login_user)
         json={"title": "Protected Task", "description": "desc"},
         cookies={"access_token": token_owner},
     )
-    task_id = client.get("/tasks/", cookies={"access_token": token_owner}).json()[0][
-        "id"
-    ]
+    task_id = _task_list(client.get("/tasks/", cookies={"access_token": token_owner}))[
+        0
+    ]["id"]
 
     response = client.post(
         f"/tasks/complete/{task_id}",
@@ -128,7 +143,12 @@ def test_complete_task_other_user_returns_403(client, register_user, login_user)
     )
 
     assert response.status_code == 403
-    assert response.json() == {"detail": "Unauthorized"}
+    assert _error_payload(response) == {
+        "code": "TASK_FORBIDDEN",
+        "message": "Unauthorized",
+        "detail": None,
+        "fields": [],
+    }
 
 
 def test_complete_task_not_found_returns_404(client, register_user, login_user):
@@ -144,7 +164,12 @@ def test_complete_task_not_found_returns_404(client, register_user, login_user):
     response = client.post("/tasks/complete/999", cookies={"access_token": token})
 
     assert response.status_code == 404
-    assert response.json() == {"detail": "Task not found"}
+    assert _error_payload(response) == {
+        "code": "TASK_NOT_FOUND",
+        "message": "Task not found",
+        "detail": None,
+        "fields": [],
+    }
 
 
 def test_update_task_full_and_partial_for_owner(client, register_user, login_user):
@@ -162,7 +187,7 @@ def test_update_task_full_and_partial_for_owner(client, register_user, login_use
         json={"title": "Original", "description": "Original Desc"},
         cookies={"access_token": token},
     )
-    task_id = client.get("/tasks/", cookies={"access_token": token}).json()[0]["id"]
+    task_id = _task_list(client.get("/tasks/", cookies={"access_token": token}))[0]["id"]
 
     update_both = client.patch(
         f"/tasks/update/{task_id}",
@@ -174,7 +199,7 @@ def test_update_task_full_and_partial_for_owner(client, register_user, login_use
         json={"title": "Only Title"},
         cookies={"access_token": token},
     )
-    task_after = client.get("/tasks/", cookies={"access_token": token}).json()[0]
+    task_after = _task_item(update_partial)
 
     assert update_both.status_code == 200
     assert update_partial.status_code == 200
@@ -205,9 +230,9 @@ def test_update_task_other_user_returns_403(client, register_user, login_user):
         json={"title": "Owner Task", "description": "Desc"},
         cookies={"access_token": token_owner},
     )
-    task_id = client.get("/tasks/", cookies={"access_token": token_owner}).json()[0][
-        "id"
-    ]
+    task_id = _task_list(client.get("/tasks/", cookies={"access_token": token_owner}))[
+        0
+    ]["id"]
 
     response = client.patch(
         f"/tasks/update/{task_id}",
@@ -216,7 +241,12 @@ def test_update_task_other_user_returns_403(client, register_user, login_user):
     )
 
     assert response.status_code == 403
-    assert response.json() == {"detail": "Unauthorized"}
+    assert _error_payload(response) == {
+        "code": "TASK_FORBIDDEN",
+        "message": "Unauthorized",
+        "detail": None,
+        "fields": [],
+    }
 
 
 def test_delete_task_success_for_owner(client, register_user, login_user):
@@ -234,14 +264,18 @@ def test_delete_task_success_for_owner(client, register_user, login_user):
         json={"title": "Delete Me", "description": "Desc"},
         cookies={"access_token": token},
     )
-    task_id = client.get("/tasks/", cookies={"access_token": token}).json()[0]["id"]
+    task_id = _task_list(client.get("/tasks/", cookies={"access_token": token}))[0]["id"]
 
     response = client.delete(
         f"/tasks/delete/{task_id}", cookies={"access_token": token}
     )
-    tasks_after = client.get("/tasks/", cookies={"access_token": token}).json()
+    tasks_after = _task_list(client.get("/tasks/", cookies={"access_token": token}))
 
     assert response.status_code == 200
+    assert response.json() == {
+        "data": None,
+        "message": "Task deleted successfully",
+    }
     assert tasks_after == []
 
 
@@ -268,9 +302,9 @@ def test_delete_task_other_user_returns_403(client, register_user, login_user):
         json={"title": "Owner Task", "description": "Desc"},
         cookies={"access_token": token_owner},
     )
-    task_id = client.get("/tasks/", cookies={"access_token": token_owner}).json()[0][
-        "id"
-    ]
+    task_id = _task_list(client.get("/tasks/", cookies={"access_token": token_owner}))[
+        0
+    ]["id"]
 
     response = client.delete(
         f"/tasks/delete/{task_id}",
@@ -278,7 +312,12 @@ def test_delete_task_other_user_returns_403(client, register_user, login_user):
     )
 
     assert response.status_code == 403
-    assert response.json() == {"detail": "Unauthorized"}
+    assert _error_payload(response) == {
+        "code": "TASK_FORBIDDEN",
+        "message": "Unauthorized",
+        "detail": None,
+        "fields": [],
+    }
 
 
 def test_task_endpoints_require_valid_cookie(client):
@@ -289,9 +328,19 @@ def test_task_endpoints_require_valid_cookie(client):
     invalid_list = client.get("/tasks/", cookies={"access_token": "invalid-token"})
 
     assert unauth_create.status_code == 401
-    assert unauth_create.json() == {"detail": "Not authenticated"}
+    assert _error_payload(unauth_create) == {
+        "code": "AUTH_NOT_AUTHENTICATED",
+        "message": "Not authenticated",
+        "detail": None,
+        "fields": [],
+    }
     assert invalid_list.status_code == 401
-    assert invalid_list.json() == {"detail": "Invalid token"}
+    assert _error_payload(invalid_list) == {
+        "code": "AUTH_INVALID_TOKEN",
+        "message": "Invalid token",
+        "detail": None,
+        "fields": [],
+    }
 
 
 def test_create_task_without_title_returns_422(client, register_user, login_user):
@@ -311,6 +360,10 @@ def test_create_task_without_title_returns_422(client, register_user, login_user
     )
 
     assert response.status_code == 422
+    assert _error_payload(response)["code"] == "VALIDATION_ERROR"
+    assert {field["field"] for field in _error_payload(response)["fields"]} == {
+        "title"
+    }
 
 
 def test_patch_task_with_empty_payload_does_not_raise_500(
@@ -330,7 +383,7 @@ def test_patch_task_with_empty_payload_does_not_raise_500(
         json={"title": "Task", "description": "Desc"},
         cookies={"access_token": token},
     )
-    task_id = client.get("/tasks/", cookies={"access_token": token}).json()[0]["id"]
+    task_id = _task_list(client.get("/tasks/", cookies={"access_token": token}))[0]["id"]
 
     response = client.patch(
         f"/tasks/update/{task_id}",
@@ -339,3 +392,9 @@ def test_patch_task_with_empty_payload_does_not_raise_500(
     )
 
     assert response.status_code == 200
+    assert _task_item(response) == {
+        "id": task_id,
+        "title": "Task",
+        "description": "Desc",
+        "completed": False,
+    }

@@ -76,31 +76,16 @@ export function FriendsPage() {
     };
   }, [clearSession, navigate]);
 
-  async function refreshFriends(message?: string) {
-    try {
-      const [friendList, pendingList] = await Promise.all([
-        getFriends(),
-        getPendingFriendRequests(),
-      ]);
-
-      setFriends(friendList);
-      setPendingRequests(pendingList);
-      if (message) {
-        setFeedback(message);
-      }
-    } catch (refreshError) {
-      if (refreshError instanceof ApiError && refreshError.status === 401) {
-        clearSession();
-        navigate("/entrar", { replace: true });
-        return;
-      }
-
-      setError(
-        refreshError instanceof Error
-          ? refreshError.message
-          : "Não foi possível atualizar suas conexões.",
-      );
+  function handleActionError(actionError: unknown, fallbackMessage: string) {
+    if (actionError instanceof ApiError && actionError.status === 401) {
+      clearSession();
+      navigate("/entrar", { replace: true });
+      return;
     }
+
+    setError(
+      actionError instanceof Error ? actionError.message : fallbackMessage,
+    );
   }
 
   async function handleInviteSubmit(event: FormEvent<HTMLFormElement>) {
@@ -120,13 +105,9 @@ export function FriendsPage() {
     try {
       await sendFriendRequest(friendId);
       setInviteId("");
-      await refreshFriends("Convite enviado com sucesso.");
+      setFeedback("Convite enviado com sucesso.");
     } catch (actionError) {
-      setError(
-        actionError instanceof Error
-          ? actionError.message
-          : "Não foi possível enviar este convite.",
-      );
+      handleActionError(actionError, "Não foi possível enviar este convite.");
     } finally {
       setIsSendingInvite(false);
     }
@@ -138,12 +119,21 @@ export function FriendsPage() {
 
     try {
       await acceptFriendRequest(request.requester_id);
-      await refreshFriends("Solicitação aceita com sucesso.");
+      setPendingRequests((currentRequests) =>
+        currentRequests.filter((item) => item.id !== request.id),
+      );
+      setFriends((currentFriends) => {
+        if (currentFriends.some((friend) => friend.id === request.requester.id)) {
+          return currentFriends;
+        }
+
+        return [request.requester, ...currentFriends];
+      });
+      setFeedback("Solicitação aceita com sucesso.");
     } catch (actionError) {
-      setError(
-        actionError instanceof Error
-          ? actionError.message
-          : "Não foi possível aceitar esta solicitação.",
+      handleActionError(
+        actionError,
+        "Não foi possível aceitar esta solicitação.",
       );
     }
   }
@@ -154,12 +144,14 @@ export function FriendsPage() {
 
     try {
       await refuseFriendRequest(request.requester_id);
-      await refreshFriends("Solicitação recusada.");
+      setPendingRequests((currentRequests) =>
+        currentRequests.filter((item) => item.id !== request.id),
+      );
+      setFeedback("Solicitação recusada.");
     } catch (actionError) {
-      setError(
-        actionError instanceof Error
-          ? actionError.message
-          : "Não foi possível recusar esta solicitação.",
+      handleActionError(
+        actionError,
+        "Não foi possível recusar esta solicitação.",
       );
     }
   }
@@ -170,12 +162,14 @@ export function FriendsPage() {
 
     try {
       await removeFriendship(friend.id);
-      await refreshFriends("Conexão removida.");
+      setFriends((currentFriends) =>
+        currentFriends.filter((item) => item.id !== friend.id),
+      );
+      setFeedback("Conexão removida.");
     } catch (actionError) {
-      setError(
-        actionError instanceof Error
-          ? actionError.message
-          : "Não foi possível remover esta conexão.",
+      handleActionError(
+        actionError,
+        "Não foi possível remover esta conexão.",
       );
     }
   }
@@ -281,16 +275,19 @@ export function FriendsPage() {
               pendingRequests.map((request) => (
                 <div className="friend-card friend-card-spacious" key={request.id}>
                   <div className="friend-card-top">
-                    <div className="avatar avatar-large">#{request.requester_id}</div>
+                    <div className="avatar avatar-large">
+                      {getInitials(request.requester.name)}
+                    </div>
                     <div>
-                      <strong>Usuário #{request.requester_id}</strong>
-                      <p>Solicitação recebida para a sua conta atual.</p>
+                      <strong>{request.requester.name}</strong>
+                      <p>{request.requester.email}</p>
                     </div>
                   </div>
 
                   <p>
-                    O identificador da conta é exibido porque este MVP ainda não
-                    possui busca de usuários ou perfis públicos completos.
+                    Solicitação recebida para a sua conta atual. Você pode aceitar
+                    para adicionar essa pessoa à sua rede ativa ou recusar para
+                    manter a lista limpa.
                   </p>
 
                   <div className="friend-card-actions">

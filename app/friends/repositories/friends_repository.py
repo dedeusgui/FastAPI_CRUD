@@ -2,7 +2,7 @@ from operator import and_, or_
 
 from app.friends.models.friendships import Friendship, Status
 from app.user.models.user import User
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 
 
 class FriendRepository:
@@ -78,6 +78,7 @@ class FriendRepository:
     def get_pending_friend_requests(self, user_id: int) -> list[Friendship]:
         return (
             self.db.query(Friendship)
+            .options(joinedload(Friendship.requester))
             .filter(
                 (Friendship.receiver_id == user_id)
                 & (Friendship.status == Status.PENDING)

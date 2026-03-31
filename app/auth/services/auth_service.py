@@ -1,8 +1,7 @@
-from fastapi import HTTPException
-
 from app.user.models.user import User
 from app.user.repositories.user_repository import UserRepository
 from app.auth.utils.security import verify_password
+from app.shared import AppException
 
 
 class AuthService:
@@ -13,4 +12,8 @@ class AuthService:
         user = self.user_repository.get_user_by_email(email)
         if user and verify_password(password, user.hashed_password):
             return user
-        raise HTTPException(status_code=401, detail="Invalid email or password")
+        raise AppException(
+            status_code=401,
+            code="AUTH_INVALID_CREDENTIALS",
+            message="Invalid email or password",
+        )

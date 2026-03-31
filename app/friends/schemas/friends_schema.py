@@ -1,6 +1,9 @@
 from pydantic import BaseModel, Field
 from enum import Enum
 
+from app.shared.api import ApiSuccessResponse
+from app.user.schemas.user import UserResponse
+
 
 class FriendshipStatus(str, Enum):
     PENDING = "pending"
@@ -24,3 +27,29 @@ class FriendshipResponse(FriendshipBase):
     )
 
     model_config = {"from_attributes": True}
+
+
+class PendingFriendshipResponse(FriendshipResponse):
+    requester: UserResponse
+
+
+class FriendshipData(BaseModel):
+    friendship: FriendshipResponse
+
+
+class FriendshipListData(BaseModel):
+    requests: list[PendingFriendshipResponse]
+
+
+class FriendshipStatusData(BaseModel):
+    status: FriendshipStatus
+
+
+class FriendsListData(BaseModel):
+    friends: list[UserResponse]
+
+
+FriendshipEnvelope = ApiSuccessResponse[FriendshipData]
+PendingFriendshipsEnvelope = ApiSuccessResponse[FriendshipListData]
+FriendshipStatusEnvelope = ApiSuccessResponse[FriendshipStatusData]
+FriendsListEnvelope = ApiSuccessResponse[FriendsListData]

@@ -16,13 +16,12 @@ from app.user.services.user_service import UserService
 
 
 @pytest.fixture
-def db_session():
+def test_engine():
     engine = create_engine(
         "sqlite://",
         connect_args={"check_same_thread": False},
         poolclass=StaticPool,
     )
-    SessionTesting = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
     Base.metadata.create_all(
         bind=engine,
@@ -33,11 +32,9 @@ def db_session():
             Friendship.__table__,
         ],
     )
-    db = SessionTesting()
     try:
-        yield db
+        yield engine
     finally:
-        db.close()
         Base.metadata.drop_all(
             bind=engine,
             tables=[
@@ -50,14 +47,29 @@ def db_session():
 
 
 @pytest.fixture
-def client(db_session):
-    app = create_app()
+def session_factory(test_engine):
+    return sessionmaker(autocommit=False, autoflush=False, bind=test_engine)
+
+
+@pytest.fixture
+def db_session(session_factory):
+    db = session_factory()
+    try:
+        yield db
+    finally:
+        db.close()
+
+
+@pytest.fixture
+def client(session_factory):
+    app = create_app(create_tables=False)
 
     def override_get_db():
+        db = session_factory()
         try:
-            yield db_session
+            yield db
         finally:
-            pass
+            db.close()
 
     app.dependency_overrides[get_db] = override_get_db
 

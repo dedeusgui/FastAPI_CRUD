@@ -50,17 +50,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   async function login(payload: AuthPayload) {
-    await loginRequest(payload);
-    const currentUser = await getCurrentUser();
+    const currentUser = await loginRequest(payload);
     setUser(currentUser);
   }
 
   async function register(payload: RegisterPayload) {
     await registerRequest(payload);
-    await login({
+    const currentUser = await loginRequest({
       email: payload.email,
       password: payload.password,
     });
+    setUser(currentUser);
   }
 
   async function logout() {

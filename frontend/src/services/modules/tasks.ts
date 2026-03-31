@@ -1,5 +1,5 @@
 import { apiRequest } from "../api/client";
-import type { TaskItem } from "../../types/app";
+import type { TaskData, TaskItem, TasksData } from "../../types/app";
 
 interface TaskPayload {
   title: string;
@@ -12,31 +12,31 @@ interface TaskUpdatePayload {
 }
 
 export function getTasks() {
-  return apiRequest<TaskItem[]>("/tasks/");
+  return apiRequest<TasksData>("/tasks/").then(({ tasks }) => tasks);
 }
 
 export function createTask(payload: TaskPayload) {
-  return apiRequest<void>("/tasks/create", {
+  return apiRequest<TaskData>("/tasks/create", {
     method: "POST",
     body: JSON.stringify(payload),
-  });
+  }).then(({ task }) => task);
 }
 
 export function completeTask(taskId: number) {
-  return apiRequest<void>(`/tasks/complete/${taskId}`, {
+  return apiRequest<TaskData>(`/tasks/complete/${taskId}`, {
     method: "POST",
-  });
+  }).then(({ task }) => task);
 }
 
 export function updateTask(taskId: number, payload: TaskUpdatePayload) {
-  return apiRequest<void>(`/tasks/update/${taskId}`, {
+  return apiRequest<TaskData>(`/tasks/update/${taskId}`, {
     method: "PATCH",
     body: JSON.stringify(payload),
-  });
+  }).then(({ task }) => task);
 }
 
 export function deleteTask(taskId: number) {
-  return apiRequest<void>(`/tasks/delete/${taskId}`, {
+  return apiRequest<null>(`/tasks/delete/${taskId}`, {
     method: "DELETE",
-  });
+  }).then(() => undefined);
 }

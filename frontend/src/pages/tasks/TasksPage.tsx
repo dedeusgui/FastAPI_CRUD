@@ -82,26 +82,16 @@ export function TasksPage() {
     };
   }, [clearSession, navigate]);
 
-  async function refreshTasks(message?: string) {
-    try {
-      const taskList = await getTasks();
-      setTasks(taskList);
-      if (message) {
-        setFeedback(message);
-      }
-    } catch (refreshError) {
-      if (refreshError instanceof ApiError && refreshError.status === 401) {
-        clearSession();
-        navigate("/entrar", { replace: true });
-        return;
-      }
-
-      setError(
-        refreshError instanceof Error
-          ? refreshError.message
-          : "Não foi possível atualizar a lista de tarefas.",
-      );
+  function handleActionError(actionError: unknown, fallbackMessage: string) {
+    if (actionError instanceof ApiError && actionError.status === 401) {
+      clearSession();
+      navigate("/entrar", { replace: true });
+      return;
     }
+
+    setError(
+      actionError instanceof Error ? actionError.message : fallbackMessage,
+    );
   }
 
   const visibleTasks = tasks.filter((task) => {
@@ -137,19 +127,16 @@ export function TasksPage() {
     setIsSubmitting(true);
 
     try {
-      await createTask({
+      const createdTask = await createTask({
         title: trimmedTitle,
         description: trimmedDescription || undefined,
       });
+      setTasks((currentTasks) => [createdTask, ...currentTasks]);
       setTitle("");
       setDescription("");
-      await refreshTasks("Tarefa criada com sucesso.");
+      setFeedback("Tarefa criada com sucesso.");
     } catch (submitError) {
-      setError(
-        submitError instanceof Error
-          ? submitError.message
-          : "Não foi possível criar a tarefa.",
-      );
+      handleActionError(submitError, "Não foi possível criar a tarefa.");
     } finally {
       setIsSubmitting(false);
     }
@@ -180,18 +167,19 @@ export function TasksPage() {
     }
 
     try {
-      await updateTask(taskId, {
+      const updatedTask = await updateTask(taskId, {
         title: trimmedTitle,
         description: trimmedDescription || undefined,
       });
-      stopEditing();
-      await refreshTasks("Tarefa atualizada.");
-    } catch (submitError) {
-      setError(
-        submitError instanceof Error
-          ? submitError.message
-          : "Não foi possível atualizar a tarefa.",
+      setTasks((currentTasks) =>
+        currentTasks.map((task) =>
+          task.id === updatedTask.id ? updatedTask : task,
+        ),
       );
+      stopEditing();
+      setFeedback("Tarefa atualizada.");
+    } catch (submitError) {
+      handleActionError(submitError, "Não foi possível atualizar a tarefa.");
     }
   }
 
@@ -200,14 +188,15 @@ export function TasksPage() {
     setFeedback("");
 
     try {
-      await completeTask(taskId);
-      await refreshTasks("Tarefa concluída.");
-    } catch (submitError) {
-      setError(
-        submitError instanceof Error
-          ? submitError.message
-          : "Não foi possível concluir a tarefa.",
+      const completedTask = await completeTask(taskId);
+      setTasks((currentTasks) =>
+        currentTasks.map((task) =>
+          task.id === completedTask.id ? completedTask : task,
+        ),
       );
+      setFeedback("Tarefa concluída.");
+    } catch (submitError) {
+      handleActionError(submitError, "Não foi possível concluir a tarefa.");
     }
   }
 
@@ -217,16 +206,15 @@ export function TasksPage() {
 
     try {
       await deleteTask(taskId);
+      setTasks((currentTasks) =>
+        currentTasks.filter((task) => task.id !== taskId),
+      );
       if (editingTaskId === taskId) {
         stopEditing();
       }
-      await refreshTasks("Tarefa removida.");
+      setFeedback("Tarefa removida.");
     } catch (submitError) {
-      setError(
-        submitError instanceof Error
-          ? submitError.message
-          : "Não foi possível remover a tarefa.",
-      );
+      handleActionError(submitError, "Não foi possível remover a tarefa.");
     }
   }
 

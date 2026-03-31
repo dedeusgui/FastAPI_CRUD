@@ -1,40 +1,43 @@
-import { apiRequest, ApiError } from "../api/client";
-import type { FriendItem, PendingFriendRequest } from "../../types/app";
+import { apiRequest } from "../api/client";
+import type {
+  FriendsData,
+  FriendshipData,
+  FriendshipItem,
+  FriendItem,
+  PendingFriendRequest,
+  PendingRequestsData,
+} from "../../types/app";
 
 export function getFriends() {
-  return apiRequest<FriendItem[]>("/friends").catch((error) => {
-    if (error instanceof ApiError && error.status === 404) {
-      return [];
-    }
-
-    throw error;
-  });
+  return apiRequest<FriendsData>("/friends").then(({ friends }) => friends);
 }
 
 export function getPendingFriendRequests() {
-  return apiRequest<PendingFriendRequest[]>("/friends/pending-requests");
+  return apiRequest<PendingRequestsData>("/friends/pending-requests").then(
+    ({ requests }) => requests,
+  );
 }
 
 export function sendFriendRequest(friendId: number) {
-  return apiRequest<PendingFriendRequest>(`/friends/request/${friendId}`, {
+  return apiRequest<FriendshipData>(`/friends/request/${friendId}`, {
     method: "POST",
-  });
+  }).then(({ friendship }) => friendship);
 }
 
 export function acceptFriendRequest(friendId: number) {
-  return apiRequest<PendingFriendRequest>(`/friends/accept/${friendId}`, {
+  return apiRequest<FriendshipData>(`/friends/accept/${friendId}`, {
     method: "POST",
-  });
+  }).then(({ friendship }) => friendship);
 }
 
 export function refuseFriendRequest(friendId: number) {
-  return apiRequest<PendingFriendRequest>(`/friends/refuse/${friendId}`, {
+  return apiRequest<FriendshipData>(`/friends/refuse/${friendId}`, {
     method: "POST",
-  });
+  }).then(({ friendship }) => friendship);
 }
 
 export function removeFriendship(friendId: number) {
-  return apiRequest<void>(`/friends/remove/${friendId}`, {
+  return apiRequest<null>(`/friends/remove/${friendId}`, {
     method: "DELETE",
-  });
+  }).then(() => undefined);
 }

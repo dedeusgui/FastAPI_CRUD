@@ -1,5 +1,7 @@
 from pydantic import BaseModel
 
+from app.shared.api import ApiSuccessResponse
+
 
 class TaskCreate(BaseModel):
     title: str
@@ -20,18 +22,13 @@ class TaskResponse(BaseModel):
     model_config = {"from_attributes": True}
 
 
-class TaskRead(BaseModel):
-    id: int
-    title: str
-    description: str | None = None
-    completed: bool
-
-    model_config = {"from_attributes": True}
-
-
-class TaskDelete(BaseModel):
-    id: int
-
-
 class TaskList(BaseModel):
     tasks: list[TaskResponse]
+
+
+class TaskData(BaseModel):
+    task: TaskResponse
+
+
+TaskEnvelope = ApiSuccessResponse[TaskData]
+TaskListEnvelope = ApiSuccessResponse[TaskList]

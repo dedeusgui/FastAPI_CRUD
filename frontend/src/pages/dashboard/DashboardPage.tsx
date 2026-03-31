@@ -247,10 +247,10 @@ export function DashboardPage() {
             ) : (
               pendingRequests.slice(0, 4).map((request) => (
                 <div className="friend-row friend-row-spacious" key={request.id}>
-                  <div className="avatar">#{request.requester_id}</div>
+                  <div className="avatar">{getInitials(request.requester.name)}</div>
                   <div>
-                    <strong>Convite do usuário #{request.requester_id}</strong>
-                    <p>Pedido recebido e pronto para ser aceito ou recusado na área de conexões.</p>
+                    <strong>{request.requester.name}</strong>
+                    <p>{request.requester.email}</p>
                   </div>
                   <StatusBadge tone="warning">Pendente</StatusBadge>
                 </div>

@@ -1,5 +1,7 @@
 from pydantic import BaseModel, EmailStr, Field
 
+from app.shared.api import ApiSuccessResponse
+
 
 class UserCreate(BaseModel):
     name: str
@@ -28,3 +30,15 @@ class UserResponse(BaseModel):
 class TokenResponse(BaseModel):
     access_token: str
     token_type: str = "bearer"
+
+
+class UserData(BaseModel):
+    user: UserResponse
+
+
+class UserListData(BaseModel):
+    users: list[UserResponse]
+
+
+UserEnvelope = ApiSuccessResponse[UserData]
+UserListEnvelope = ApiSuccessResponse[UserListData]
