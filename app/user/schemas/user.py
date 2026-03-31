@@ -7,6 +7,7 @@ from app.user.models.user import User
 class UserCreate(BaseModel):
     name: str
     email: EmailStr
+    username: str
     password: str = Field(min_length=6)
 
 
@@ -24,6 +25,7 @@ class UserResponse(BaseModel):
     id: int
     name: str
     email: EmailStr
+    username: str
 
     model_config = {"from_attributes": True}
 

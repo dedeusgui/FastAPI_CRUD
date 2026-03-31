@@ -37,7 +37,9 @@ SESSION_HOURS = settings.session_hours
 def register_user(
     user: UserCreate, user_service: UserService = Depends(get_user_service)
 ):
-    created_user = user_service.register_user(user.name, user.email, user.password)
+    created_user = user_service.register_user(
+        user.name, user.username, user.email, user.password
+    )
     return build_success_response(
         UserData(user=created_user),
         message="User registered successfully",

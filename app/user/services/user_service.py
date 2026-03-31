@@ -8,7 +8,9 @@ class UserService:
     def __init__(self, user_repository: UserRepository):
         self.user_repository = user_repository
 
-    def register_user(self, name: str, email: str, password: str) -> User:
+    def register_user(
+        self, name: str, username: str, email: str, password: str
+    ) -> User:
         if self.user_repository.get_user_by_email(email):
             raise AppException(
                 status_code=400,
@@ -18,7 +20,7 @@ class UserService:
         hashed_password = hash_password(password)
         user = User(
             id=None,
-            username=email.lower(),
+            username=username,
             name=name,
             email=email,
             hashed_password=hashed_password,
