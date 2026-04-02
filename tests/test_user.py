@@ -44,7 +44,9 @@ def test_register_user_short_password_returns_422(client):
         "/users/register",
         json={
             "name": "Short Password",
+            "username": "short-password",
             "email": "short@example.com",
+            "avatar_url": "https://www.gravatar.com/avatar/",
             "password": "123",
         },
     )

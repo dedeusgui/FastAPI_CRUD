@@ -23,6 +23,7 @@ from app.user.schemas.user import (
     UserListData,
     UserListEnvelope,
     UserLogin,
+    UserResponse,
     UserUpdate,
 )
 
@@ -118,7 +119,8 @@ def list_users(
     user_service: UserService = Depends(get_user_service),
 ):
     users = user_service.get_users(skip=skip, limit=limit)
-    return build_success_response(UserListData(users=users))
+    users_response = [UserResponse.model_validate(user) for user in users]
+    return build_success_response(UserListData(users=users_response))
 
 
 @router.get("/by-username/{username}", response_model=UserEnvelope)

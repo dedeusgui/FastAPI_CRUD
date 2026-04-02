@@ -1,7 +1,6 @@
 from pydantic import BaseModel, EmailStr, Field
 
 from app.shared.api import ApiSuccessResponse
-from app.user.models.user import User
 
 
 class UserCreate(BaseModel):
@@ -27,8 +26,8 @@ class UserResponse(BaseModel):
     id: int
     name: str
     email: EmailStr
-    username: str
-    avatar_url: str
+    username: str | None = None
+    avatar_url: str | None = None
 
     model_config = {"from_attributes": True}
 
@@ -43,7 +42,7 @@ class UserData(BaseModel):
 
 
 class UserListData(BaseModel):
-    users: list[UserResponse] | list[User]
+    users: list[UserResponse]
 
 
 UserEnvelope = ApiSuccessResponse[UserData]

@@ -91,10 +91,23 @@ def user_service(user_repository):
 
 @pytest.fixture
 def register_user(client):
-    def _register(name: str, email: str, password: str):
+    def _register(
+        name: str,
+        email: str,
+        password: str,
+        username: str | None = None,
+        avatar_url: str = "https://www.gravatar.com/avatar/",
+    ):
+        resolved_username = username or email.split("@")[0]
         return client.post(
             "/users/register",
-            json={"name": name, "email": email, "password": password},
+            json={
+                "name": name,
+                "username": resolved_username,
+                "email": email,
+                "avatar_url": avatar_url,
+                "password": password,
+            },
         )
 
     return _register
