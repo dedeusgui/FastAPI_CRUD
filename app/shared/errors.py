@@ -1,10 +1,12 @@
 from collections.abc import Iterable
+from typing import cast
 
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
-from app.shared.api import ApiErrorField, ApiErrorResponse
+import app
+from app.shared.api import ApiErrorDetail, ApiErrorField, ApiErrorResponse
 
 
 class AppException(Exception):
@@ -34,12 +36,14 @@ def _build_error_response(
     fields: list[ApiErrorField] | None = None,
 ) -> JSONResponse:
     response = ApiErrorResponse(
-        error={
-            "code": code,
-            "message": message,
-            "detail": detail,
-            "fields": fields or [],
-        }
+        error=ApiErrorDetail(
+            **{
+                "code": code,
+                "message": message,
+                "detail": detail,
+                "fields": fields or [],
+            }
+        )
     )
     return JSONResponse(status_code=status_code, content=response.model_dump())
 
@@ -80,33 +84,34 @@ def _build_validation_fields(exc: RequestValidationError) -> list[ApiErrorField]
     return fields
 
 
-async def handle_app_exception(_: Request, exc: AppException) -> JSONResponse:
+async def handle_app_exception(_: Request, exc: Exception) -> JSONResponse:
+    app_exc = cast(AppException, exc)
     return _build_error_response(
-        status_code=exc.status_code,
-        code=exc.code,
-        message=exc.message,
-        detail=exc.detail,
-        fields=exc.fields,
+        status_code=app_exc.status_code,
+        code=app_exc.code,
+        message=app_exc.message,
+        detail=app_exc.detail,
+        fields=app_exc.fields,
     )
 
 
-async def handle_http_exception(_: Request, exc: HTTPException) -> JSONResponse:
-    code, message = _map_http_exception(exc)
+async def handle_http_exception(_: Request, exc: Exception) -> JSONResponse:
+    http_exc = cast(HTTPException, exc)
+    code, message = _map_http_exception(http_exc)
     return _build_error_response(
-        status_code=exc.status_code,
+        status_code=http_exc.status_code,
         code=code,
         message=message,
     )
 
 
-async def handle_validation_exception(
-    _: Request, exc: RequestValidationError
-) -> JSONResponse:
+async def handle_validation_exception(_: Request, exc: Exception) -> JSONResponse:
+    validation_exc = cast(RequestValidationError, exc)
     return _build_error_response(
         status_code=422,
         code="VALIDATION_ERROR",
         message="Request validation failed",
-        fields=_build_validation_fields(exc),
+        fields=_build_validation_fields(validation_exc),
     )
 
 
