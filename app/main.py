@@ -7,7 +7,7 @@ from app.tasks.routes import router as tasks_router
 from app.friends.routes import router as friends_router
 
 
-def create_app() -> FastAPI:
+def create_app(*, create_tables: bool = True) -> FastAPI:
     app = FastAPI()
 
     origins = [
